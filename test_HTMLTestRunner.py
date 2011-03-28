@@ -47,9 +47,7 @@ class SampleTest1(unittest.TestCase):
     This simple class has only one test case that fails.
     """
     def test_fail(self):
-        """
-        test description (描述)
-        """
+        u""" test description (描述) """
         self.fail()
 
 class SampleOutputTestBase(unittest.TestCase):
