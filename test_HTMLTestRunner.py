@@ -80,6 +80,8 @@ class SampleTestUnicode(SampleOutputTestBase):
     #
     # This seems to be limitation of traceback.format_exception()
     # Same result in standard unittest.
+
+    # 2011-03-28 Note: I think it is fixed in Python 2.6
     def test_pass(self):
         u""" A test with Unicode (統一碼) docstring """
         pass
@@ -133,78 +135,78 @@ Demo Test
 
 >SampleTestBasic
 >test_1<
->pass<
+pass
 basic test
 
 >test_2<
->pass<
+pass
 basic test
 
 >test_3<
->fail<
+fail
 AssertionError: basic test
 
 >test_4<
->error<
+error
 RuntimeError: basic test
 
 
 >SampleTestHTML
 >test_1<
->pass<
-'the message is 5 symbols: \\x3C\\x3E\\x26\\"\\'\\n
-plus the HTML entity string: [\\x26copy;] on a second line
+pass
+the message is 5 symbols: &lt;&gt;&amp;"'
+plus the HTML entity string: [&amp;copy;] on a second line
 
 >test_2<
->pass<
-'the message is 5 symbols: \\x3C\\x3E\\x26\\"\\'\\n
-plus the HTML entity string: [\\x26copy;] on a second line
+pass
+the message is 5 symbols: &lt;&gt;&amp;"'
+plus the HTML entity string: [&amp;copy;] on a second line
 
 >test_3<
->fail<
-AssertionError: the message is 5 symbols: \\x3C\\x3E\\x26\\"\\'\\n
-plus the HTML entity string: [\\x26copy;] on a second line
+fail
+AssertionError: the message is 5 symbols: &lt;&gt;&amp;"'
+plus the HTML entity string: [&amp;copy;] on a second line
 
 >test_4<
->error<
-RuntimeError: the message is 5 symbols: \\x3C\\x3E\\x26\\"\\'\\n
-plus the HTML entity string: [\\x26copy;] on a second line
+error
+RuntimeError: the message is 5 symbols: &lt;&gt;&amp;"'
+plus the HTML entity string: [&amp;copy;] on a second line
 
 
 >SampleTestLatin1
 >test_1<
->pass<
+pass
 the message is áéíóú
 
 >test_2<
->pass<
+pass
 the message is áéíóú
 
 >test_3<
->fail<
+fail
 AssertionError: the message is áéíóú
 
 >test_4<
->error<
+error
 RuntimeError: the message is áéíóú
 
 
 >SampleTestUnicode
 >test_1<
->pass<
+pass
 the message is \u8563
 
 >test_2<
->pass<
+pass
 the message is \u8563
 
 >test_3<
->fail<
-AssertionError: \\x3Cunprintable instance object\\x3E
+fail
+AssertionError:
 
 >test_4<
->error<
-RuntimeError: \\x3Cunprintable instance object\\x3E
+error
+RuntimeError:
 
 Total
 >19<
