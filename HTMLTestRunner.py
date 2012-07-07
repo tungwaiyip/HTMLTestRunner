@@ -112,15 +112,23 @@ from xml.sax import saxutils
 #   >>> logging.basicConfig(stream=HTMLTestRunner.stdout_redirector)
 #   >>>
 
+def to_unicode(s):
+    try:
+        return unicode(s)
+    except UnicodeDecodeError:
+        # s is non ascii byte string
+        return s.decode('unicode_escape')
+
 class OutputRedirector(object):
     """ Wrapper to redirect stdout or stderr """
     def __init__(self, fp):
         self.fp = fp
 
     def write(self, s):
-        self.fp.write(s)
+        self.fp.write(to_unicode(s))
 
     def writelines(self, lines):
+        lines = map(to_unicode, lines)
         self.fp.writelines(lines)
 
     def flush(self):
