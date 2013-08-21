@@ -5,6 +5,10 @@ BSD style license.
 Only a single file module HTMLTestRunner.py is needed to generate your report.
 
 Additions:
-Changed the css for the report.
-One can add description to the test cases, added a sample code in HTMLTestRunner.py module itself.
+Changed CSS
+One can add description to the test cases by following the sample code
+mentioned in the HTMLTestRunner.py module itself.
+Read the comments carefully in order to generate detailed reports.
+
+View the sample report in  sample_report.png
 
