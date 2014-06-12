@@ -566,7 +566,11 @@ class _TestResult(TestResult):
             sys.stderr = self.stderr0
             self.stdout0 = None
             self.stderr0 = None
-        return self.outputBuffer.getvalue()
+        # close the buffer on each disconnection, so it won't append indefinitely
+        output = self.outputBuffer.getvalue()
+        self.outputBuffer.close()
+        self.outputBuffer = StringIO.StringIO()
+        return output
 
 
     def stopTest(self, test):
