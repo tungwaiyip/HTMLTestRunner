@@ -817,12 +817,21 @@ class TestProgram(unittest.TestProgram):
     A variation of the unittest.TestProgram. Please refer to the base
     class for command line parameters.
     """
+    
+    def __init__(self, **kwargs):
+
+    	self.title = Template_mixin.DEFAULT_TITLE
+    	if "title" in kwargs:
+    		self.title = kwargs.pop("title")
+
+    	unittest.TestProgram.__init__(self, **kwargs)
+    
     def runTests(self):
         # Pick HTMLTestRunner as the default test runner.
         # base class's testRunner parameter is not useful because it means
         # we have to instantiate HTMLTestRunner before we know self.verbosity.
         if self.testRunner is None:
-            self.testRunner = HTMLTestRunner(verbosity=self.verbosity)
+            self.testRunner = HTMLTestRunner(title=self.title, verbosity=self.verbosity)
         unittest.TestProgram.runTests(self)
 
 main = TestProgram
