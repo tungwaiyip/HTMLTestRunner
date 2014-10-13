@@ -3,3 +3,6 @@ It generates easy to use HTML test reports. HTMLTestRunner is released under a
 BSD style license.
 
 Only a single file module HTMLTestRunner.py is needed to generate your report.
+
+Additions:
+Change encoding type latin-1 to utf-8, When display garbled characters that include Chinese characters in test report.
