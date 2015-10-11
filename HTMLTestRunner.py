@@ -65,11 +65,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # URL: http://tungwaiyip.info/software/HTMLTestRunner.html
 
 __author__ = "Wai Yip Tung"
-__version__ = "0.8.2"
+__version__ = "0.8.3"
 
 
 """
 Change History
+
+Version 0.8.3
+* Prevent crash on class or module-level exceptions (Darren Wurf).
 
 Version 0.8.2
 * Show output inline instead of popup window (Viorel Lupu).
@@ -89,15 +92,14 @@ Version in 0.7.1
 
 # TODO: color stderr
 # TODO: simplify javascript using ,ore than 1 class in the class attribute?
-from selenium import webdriver
+
 import datetime
 import StringIO
 import sys
 import time
 import unittest
 from xml.sax import saxutils
-#make the necessary imports if required, in case of any config file or any
-#other data required to display in the report
+
 
 # ------------------------------------------------------------------------
 # The redirectors below are used to capture output during testing. Output
@@ -110,15 +112,23 @@ from xml.sax import saxutils
 #   >>> logging.basicConfig(stream=HTMLTestRunner.stdout_redirector)
 #   >>>
 
+def to_unicode(s):
+    try:
+        return unicode(s)
+    except UnicodeDecodeError:
+        # s is non ascii byte string
+        return s.decode('unicode_escape')
+
 class OutputRedirector(object):
     """ Wrapper to redirect stdout or stderr """
     def __init__(self, fp):
         self.fp = fp
 
     def write(self, s):
-        self.fp.write(s)
+        self.fp.write(to_unicode(s))
 
     def writelines(self, lines):
+        lines = map(to_unicode, lines)
         self.fp.writelines(lines)
 
     def flush(self):
@@ -173,12 +183,12 @@ class Template_mixin(object):
     """
 
     STATUS = {
-    0: 'PASS',
-    1: 'FAIL',
-    2: 'ERROR',
+    0: 'pass',
+    1: 'fail',
+    2: 'error',
     }
 
-    DEFAULT_TITLE = "Test Report"
+    DEFAULT_TITLE = 'Unit Test Report'
     DEFAULT_DESCRIPTION = ''
 
     # ------------------------------------------------------------------------
@@ -206,25 +216,17 @@ function showCase(level) {
         if (id.substr(0,2) == 'ft') {
             if (level < 1) {
                 tr.className = 'hiddenRow';
-                tr.nextElementSibling.className = 'hiddenRow'
             }
             else {
                 tr.className = '';
-                tr.nextElementSibling.className = '';
-                tr.nextElementSibling.getElementsByTagName("div")[0].style.display = 'none';
-                
             }
         }
         if (id.substr(0,2) == 'pt') {
             if (level > 1) {
                 tr.className = '';
-                tr.nextElementSibling.className = '';                                                                        
-                 tr.nextElementSibling.getElementsByTagName("div")[0].style.display = 'none';
             }
             else {
                 tr.className = 'hiddenRow';
-                tr.nextElementSibling.className = 'hiddenRow';
-
             }
         }
     }
@@ -255,7 +257,6 @@ function showClassDetail(cid, count) {
         }
         else {
             document.getElementById(tid).className = '';
-            document.getElementById(tid).nextElementSibling.className = '';
         }
     }
 }
@@ -289,8 +290,7 @@ function showOutput(id, name) {
                     "resizable,scrollbars,status,width=800,height=450");
     d = w.document;
     d.write("<pre>");
-  //  d.write(html_escape(output_list[id]));
-    d.write(output_list[id]);
+    d.write(html_escape(output_list[id]));
     d.write("\n");
     d.write("<a href='javascript:window.close()'>close</a>\n");
     d.write("</pre>\n");
@@ -317,28 +317,25 @@ function showOutput(id, name) {
 
     STYLESHEET_TMPL = """
 <style type="text/css" media="screen">
-body        { font-family: verdana, arial, helvetica, sans-serif; font-size: 100%; }
+body        { font-family: verdana, arial, helvetica, sans-serif; font-size: 80%; }
 table       { font-size: 100%; }
 pre         { }
 
 /* -- heading ---------------------------------------------------------------------- */
 h1 {
-    font-size: 20pt;
-    color: black;
+	font-size: 16pt;
+	color: gray;
 }
 .heading {
     margin-top: 0ex;
     margin-bottom: 1ex;
-    
 }
 
 .heading .attribute {
     margin-top: 1ex;
     margin-bottom: 0;
 }
-.heading .attribute strong {
-color: #08c;
-}
+
 .heading .description {
     margin-top: 4ex;
     margin-bottom: 6ex;
@@ -346,7 +343,6 @@ color: #08c;
 
 /* -- css div popup ------------------------------------------------------------------------ */
 a.popup_link {
-
 }
 
 a.popup_link:hover {
@@ -360,18 +356,12 @@ a.popup_link:hover {
     top: 0px;
     /*border: solid #627173 1px; */
     padding: 10px;
-    background-color: #E0FFFF; 
-/*    background-color: #dcf3dc; */
-   /* font-family: "Lucida Console", "Courier New", Courier, monospace;*/
-    font-family: 'Cantarell', serif;
+    background-color: #E6E6D6;
+    font-family: "Lucida Console", "Courier New", Courier, monospace;
     text-align: left;
-    font-size: 11pt;
-     resizable: yes;
-/*     width: 100%; */
-   /*   width: 700px; */
+    font-size: 8pt;
+    width: 500px;
 }
-
-
 
 }
 /* -- report ------------------------------------------------------------------------ */
@@ -380,42 +370,26 @@ a.popup_link:hover {
     margin-bottom: 1ex;
 }
 #result_table {
-    width: 100%;
+    width: 80%;
     border-collapse: collapse;
     border: 1px solid #777;
 }
 #header_row {
     font-weight: bold;
     color: white;
-    background-image: -moz-linear-gradient(top, #F5F5F5 0%, #EEE 100%);
-    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#F5F5F5), color-stop(100%,#EEE));
-    background-image: -webkit-linear-gradient(top, #F5F5F5 0%,#EEE 100%);
-    background-image: -ms-linear-gradient(top, #F5F5F5 0%,#EEE 100%);
-    background-image: -o-linear-gradient(top, #F5F5F5 0%,#EEE 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f5f5', endColorstr='#eeeeee',GradientType=0 );
-    background-image: linear-gradient(top, #F5F5F5 0%,#EEE 100%);
-}
-#result_table tbody > tr > td {
-    padding: 5px 8px;
-    line-height: 20px;
-}
-#result_table tbody > tr > td.result_box{
-    padding: 0px;
-}
-#result_table tbody > tr > td .testcase{
-    margin: 0;
+    background-color: #777;
 }
 #result_table td {
     border: 1px solid #777;
-    /*padding: 2px;*/
+    padding: 2px;
 }
-#total_row  { font-weight: normal;}
+#total_row  { font-weight: bold; }
 .passClass  { background-color: #6c6; }
-.failClass  { background-color: #c00; }
-.errorClass { background-color: #c60; }
-.passCase   { color: green; font-weight: normal; }
-.failCase   { color: #c00; font-weight: normal; }
-.errorCase  { color: #c60; font-weight: normal; }
+.failClass  { background-color: #c60; }
+.errorClass { background-color: #c00; }
+.passCase   { color: #6c6; }
+.failCase   { color: #c60; font-weight: bold; }
+.errorCase  { color: #c00; font-weight: bold; }
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
 
@@ -423,109 +397,6 @@ a.popup_link:hover {
 /* -- ending ---------------------------------------------------------------------- */
 #ending {
 }
-
-body{
-    background: #F8F8F8;
-    font: 12px "Lucida Sans Unicode", "Lucida Grande", "tahoma", Verdana, sans-serif;
-    margin: 20px;
-}
-h1 {
-    font-size: 20px;
-    color: #05774D;
-}
-a{
-    color: #08c;
-    text-decoration: none;
-}
-.report-meta{
-    color:#08c
-    width: 100%;
-    height: 36px;
-    background-color: #EEE;
-    background-repeat: repeat-x;
-    background-image: -moz-linear-gradient(top, #F5F5F5 0%, #EEE 100%);
-    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#F5F5F5), color-stop(100%,#EEE));
-    background-image: -webkit-linear-gradient(top, #F5F5F5 0%,#EEE 100%);
-    background-image: -ms-linear-gradient(top, #F5F5F5 0%,#EEE 100%);
-    background-image: -o-linear-gradient(top, #F5F5F5 0%,#EEE 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f5f5', endColorstr='#eeeeee',GradientType=0 );
-    background-image: linear-gradient(top, #F5F5F5 0%,#EEE 100%);
-    border: 1px solid #E5E5E5;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    margin: 0 0 5px;
-
-    }
-.report-meta ul {
-    margin: 0;
-    padding: 0 0 0 10px;
-    overflow: hidden;
-       
-}
-.report-meta li {
-    list-style: none;
-    margin: 0 10px 0 0 !important;
-    padding: 0 10px 0 0;
-    float: left;
-    border-right: 1px solid #E5E5E5;
-    line-height: 36px;
-    color: #30078B;
-    
-}
-.report-meta li:last-child {
-    border: none;
-    
-}
-
-.heading .description {
-    margin: 0 0 20px;
-}
-.report-container{
-    border: 1px solid #D9D9D9;
-    background: #FFF;
-    padding: 20px;
-    border-radius: 4px;
-}
-#show_detail_line{
-    margin: -20px -20px 20px;
-    background: #F00;
-    line-height: 35px;    
-    padding: 0;
-    background: #FFF;
-    background: -moz-linear-gradient(top, #FFF 0%, #F7F7F7 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #FFF), color-stop(100%, #F7F7F7));
-    background: -webkit-linear-gradient(top, #FFF 0%, #F7F7F7 100%);
-    background: -o-linear-gradient(top, #FFF 0%, #F7F7F7 100%);
-    background: -ms-linear-gradient(top, #FFF 0%, #F7F7F7 100%);
-    background: linear-gradient(top, #FFF 0%,#F7F7F7 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#f7f7f7',GradientType=0 );
-    border-bottom: 1px solid #E3E3E3;
-}
-#show_detail_line a{
-    border-left: 1px solid #E3E3E3;
-    float: left;
-    padding: 0 25px;
-    text-decoration: none;
-}
-#show_detail_line a:first-child{
-    border: none;
-}
-#show_detail_line a:active{
-box-shadow:0 3px 0 #08c inset;
-} 
-#header_row{
-    background: #EEE;
-}
-#result_table td{
-    border-color: #DFF8EA;
-}
-#header_row {
-    color: #666;
-    height: 35px;
-    text-shadow: 0px 1px 0 #FFF;
-}
-
 
 </style>
 """
@@ -538,22 +409,13 @@ box-shadow:0 3px 0 #08c inset;
 
     HEADING_TMPL = """<div class='heading'>
 <h1>%(title)s</h1>
-
- <div class="report-meta">
-    <ul>
-        %(parameters)s
-    </ul>
-</div>
-<ul>
+%(parameters)s
 <p class='description'>%(description)s</p>
-</ul>
 </div>
 
 """ # variables: (title, parameters, description)
 
-    HEADING_ATTRIBUTE_TMPL = """
-      <li class='attribute'><strong>%(name)s:</strong><ab></ab> %(value)s</li>
-      
+    HEADING_ATTRIBUTE_TMPL = """<p class='attribute'><strong>%(name)s:</strong> %(value)s</p>
 """ # variables: (name, value)
 
 
@@ -563,15 +425,14 @@ box-shadow:0 3px 0 #08c inset;
     #
 
     REPORT_TMPL = """
-<div class="report-container">
-<p id='show_detail_line'>
+<p id='show_detail_line'>Show
 <a href='javascript:showCase(0)'>Summary</a>
 <a href='javascript:showCase(1)'>Failed</a>
 <a href='javascript:showCase(2)'>All</a>
 </p>
 <table id='result_table'>
 <colgroup>
-<col  width='870px' />
+<col align='left' />
 <col align='right' />
 <col align='right' />
 <col align='right' />
@@ -611,36 +472,27 @@ box-shadow:0 3px 0 #08c inset;
 
 
     REPORT_TEST_WITH_OUTPUT_TMPL = r"""
-
-  <tr id='%(tid)s' class='%(Class)s'>
+<tr id='%(tid)s' class='%(Class)s'>
     <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
     <td colspan='5' align='center'>
 
     <!--css div popup start-->
     <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_%(tid)s')" >
         %(status)s</a>
-    <!--css div popup end-->
 
-    </td>
-</tr>
-
-<tr>
-
-<td colspan="6" class="result_box" align='center'>
-<div id='div_%(tid)s' class="popup_window">
-        <div style='text-align: right; color:blue;cursor:pointer'>
+    <div id='div_%(tid)s' class="popup_window">
+        <div style='text-align: right; color:red;cursor:pointer'>
         <a onfocus='this.blur();' onclick="document.getElementById('div_%(tid)s').style.display = 'none' " >
-           [Close]</a>
+           [x]</a>
         </div>
         <pre>
         %(script)s
         </pre>
     </div>
-</td>
+    <!--css div popup end-->
 
+    </td>
 </tr>
-
-
 """ # variables: (tid, Class, style, desc, status)
 
 
@@ -653,9 +505,9 @@ box-shadow:0 3px 0 #08c inset;
 
 
     REPORT_TEST_OUTPUT_TMPL = r"""
-%(output)s
+%(id)s: %(output)s
 """ # variables: (id, output)
-#%(id)s %(output)s
+
 
 
     # ------------------------------------------------------------------------
@@ -675,6 +527,7 @@ class _TestResult(TestResult):
 
     def __init__(self, verbosity=1):
         TestResult.__init__(self)
+        self.outputBuffer = StringIO.StringIO()
         self.stdout0 = None
         self.stderr0 = None
         self.success_count = 0
@@ -695,7 +548,6 @@ class _TestResult(TestResult):
     def startTest(self, test):
         TestResult.startTest(self, test)
         # just one buffer for both stdout and stderr
-        self.outputBuffer = StringIO.StringIO()
         stdout_redirector.fp = self.outputBuffer
         stderr_redirector.fp = self.outputBuffer
         self.stdout0 = sys.stdout
@@ -787,7 +639,7 @@ class HTMLTestRunner(Template_mixin):
         test(result)
         self.stopTime = datetime.datetime.now()
         self.generateReport(test, result)
-        print >>sys.stderr, '\n Time Elapsed for Running Test Cases: %s' % (self.stopTime-self.startTime)
+        print >>sys.stderr, '\nTime Elapsed: %s' % (self.stopTime-self.startTime)
         return result
 
 
@@ -814,19 +666,9 @@ class HTMLTestRunner(Template_mixin):
         startTime = str(self.startTime)[:19]
         duration = str(self.stopTime - self.startTime)
         status = []
-        #In order to specify the  URL and browser in the test report, use a config file to set the  following parameters.
-        '''
-        sample code:
-        url = config.get("set_url",'url')
-        
-        try:
-            browser= config.get("set_path_to_chromedriver",'browser')
-        except NoSectionError:
-            browser= "Firefox"
-        '''
-        if result.success_count: status.append('PASS %s'    % result.success_count)
-        if result.failure_count: status.append('FAILURE %s' % result.failure_count)
-        if result.error_count:   status.append('ERROR %s'   % result.error_count  )
+        if result.success_count: status.append('Pass %s'    % result.success_count)
+        if result.failure_count: status.append('Failure %s' % result.failure_count)
+        if result.error_count:   status.append('Error %s'   % result.error_count  )
         if status:
             status = ' '.join(status)
         else:
@@ -835,13 +677,6 @@ class HTMLTestRunner(Template_mixin):
             ('Start Time', startTime),
             ('Duration', duration),
             ('Status', status),
-         '''
-         sample code continued implementation:
-         
-         #   ('URL', url),
-         #   ('Browser', browser),
-         '''
-         #or you may alaso hardcode the URL and browser name here itself in place of using a config file
         ]
 
 
@@ -900,8 +735,8 @@ class HTMLTestRunner(Template_mixin):
             else:
                 name = "%s.%s" % (cls.__module__, cls.__name__)
             doc = cls.__doc__ and cls.__doc__.split("\n")[0] or ""
-            desc = doc and '%s %s' % (name, doc) or name
-            desc = "Tests"
+            desc = doc and '%s: %s' % (name, doc) or name
+
             row = self.REPORT_CLASS_TMPL % dict(
                 style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
                 desc = desc,
@@ -929,26 +764,10 @@ class HTMLTestRunner(Template_mixin):
     def _generate_report_test(self, rows, cid, tid, n, t, o, e):
         # e.g. 'pt1.1', 'ft1.1', etc
         has_output = bool(o or e)
-        #tid = '#' 
         tid = (n == 0 and 'p' or 'f') + 't%s.%s' % (cid+1,tid+1)
-       
         name = t.id().split('.')[-1]
         doc = t.shortDescription() or ""
-        desc = doc and ('%s %s' % (name, doc)) or name
-       
-#if you want to add the description to your test case in place of a dynamic test name,
-#you can simply use the following code,
-#may be link to a dictionary or add the test desrciptiton here itself  to the code
-
-'''
-Sample code:
-        if  desc == 'test_testcase1':           #where test_testcase1 is the dynamic test case name
-            desc = test_cases['testcase1']      #where test_cases is a dictionary with description of each test case included in the test suite
-        else desc == 'test_testcase2:
-            desc = "To verify that..... "       #OR you can hard code the test description in the library file itself in place of linking to a dictionary
-
-'''
-
+        desc = doc and ('%s: %s' % (name, doc)) or name
         tmpl = has_output and self.REPORT_TEST_WITH_OUTPUT_TMPL or self.REPORT_TEST_NO_OUTPUT_TMPL
 
         # o and e should be byte string because they are collected from stdout and stderr?
@@ -967,14 +786,13 @@ Sample code:
 
         script = self.REPORT_TEST_OUTPUT_TMPL % dict(
             id = tid,
-            #output = saxutils.escape(uo+ue),
-            output = uo+ue,
+            output = saxutils.escape(uo+ue),
         )
 
         row = tmpl % dict(
             tid = tid,
             Class = (n == 0 and 'hiddenRow' or 'none'),
-            style = n == 2 and 'errorCase' or (n == 1 and 'failCase' or 'passCase'),
+            style = n == 2 and 'errorCase' or (n == 1 and 'failCase' or 'none'),
             desc = desc,
             script = script,
             status = self.STATUS[n],
