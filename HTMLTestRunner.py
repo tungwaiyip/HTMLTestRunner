@@ -2,30 +2,9 @@ __author__ = "Wai Yip Tung"
 __version__ = "0.8.3"
 
 
-"""
-Change History
-
-Version 0.8.3
-* Prevent crash on class or module-level exceptions (Darren Wurf).
-
-Version 0.8.2
-* Show output inline instead of popup window (Viorel Lupu).
-
-Version in 0.8.1
-* Validated XHTML (Wolfgang Borgert).
-* Added description of test classes and test cases.
-
-Version in 0.8.0
-* Define Template_mixin class for customization.
-* Workaround a IE 6 bug that it does not treat <script> block as CDATA.
-
-Version in 0.7.1
-* Back port to Python 2.3 (Frank Horowitz).
-* Fix missing scroll bars in detail log (Podi).
-"""
-
 # TODO: color stderr
 # TODO: simplify javascript using ,ore than 1 class in the class attribute?
+
 
 import datetime
 import StringIO
