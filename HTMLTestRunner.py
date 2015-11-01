@@ -538,7 +538,7 @@ class _TestResult(TestResult):
         self.skip_count += 1
         TestResult.addSkip(self, test, reason)
         output = self.complete_output()
-        self.result.append((3, test, output, ''))
+        self.result.append((3, test, output, reason))
         if self.verbosity > 1:
             sys.stderr.write('skipped ')
             sys.stderr.write(str(test))
