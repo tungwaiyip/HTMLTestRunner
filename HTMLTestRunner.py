@@ -315,10 +315,10 @@ a.popup_link:hover {
 .errorClass { background-color: #A20; font-weight: bold;}
 .skipClass  { background-color: #FF0; font-weight: bold;}
 
-.passCase   { color: #0F0; }
-.failCase   { color: #F00; }
-.errorCase  { color: #A20; }
-.skipCase   { color: #FF0; }
+.passCase   { color: #000; }
+.failCase   { color: #000; }
+.errorCase  { color: #000; }
+.skipCase   { color: #000; }
 
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
@@ -358,11 +358,11 @@ a.popup_link:hover {
 <table id='result_table'>
 <colgroup>
 <col align='left' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
+<col align='center' />
+<col align='center' />
+<col align='center' />
+<col align='center' />
+<col align='center' />
 </colgroup>
 <tr id='header_row'>
     <td>Test Group/Test case</td>
@@ -389,11 +389,11 @@ a.popup_link:hover {
     REPORT_CLASS_TMPL = r"""
 <tr class='%(style)s'>
     <td>%(desc)s</td>
-    <td>%(count)s</td>
-    <td>%(Pass)s</td>
-    <td>%(fail)s</td>
-    <td>%(error)s</td>
-    <td>%(skip)s</td>
+    <td align='center' >%(count)s</td>
+    <td align='center' >%(Pass)s</td>
+    <td align='center' >%(fail)s</td>
+    <td align='center' >%(error)s</td>
+    <td align='center' >%(skip)s</td>
     <td>
         <a href="javascript:showClassDetail('%(cid)s',%(count)s)">Detail</a>
     </td>
@@ -403,7 +403,7 @@ a.popup_link:hover {
     REPORT_TEST_WITH_OUTPUT_TMPL = r"""
 <tr id='%(tid)s' class='%(Class)s'>
     <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'>
+    <td colspan='6' align='center'>
 
     <!--css div popup start-->
     <a class="popup_link"
