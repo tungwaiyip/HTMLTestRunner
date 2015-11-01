@@ -95,10 +95,10 @@ a.popup_link:hover {
 .errorClass { background-color: #A20; font-weight: bold;}
 .skipClass  { background-color: #FF0; font-weight: bold;}
 
-.passCase   { color: #0F0; }
-.failCase   { color: #F00; }
-.errorCase  { color: #A20; }
-.skipCase   { color: #FF0; }
+.passCase   { color: #000; }
+.failCase   { color: #000; }
+.errorCase  { color: #000; }
+.skipCase   { color: #000; }
 
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
@@ -208,9 +208,9 @@ function showOutput(id, name) {
 <div class='heading'>
 <h1>Unit Test Report</h1>
 
-    <p class='attribute'><strong>Start Time:</strong> 2015-11-01 19:20:56</p>
+    <p class='attribute'><strong>Start Time:</strong> 2015-11-01 20:05:29</p>
     <p class='attribute'><strong>Duration:</strong> 0:00:00.001000</p>
-    <p class='attribute'><strong>Status:</strong> Pass 1 Failure 1 Error 1</p>
+    <p class='attribute'><strong>Status:</strong> Pass 1 Skip 3 Failure 1 Error 1</p>
 <p class='description'></p>
 </div>
 
@@ -223,11 +223,11 @@ function showOutput(id, name) {
 <table id='result_table'>
 <colgroup>
 <col align='left' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
-<col align='right' />
+<col align='center' />
+<col align='center' />
+<col align='center' />
+<col align='center' />
+<col align='center' />
 </colgroup>
 <tr id='header_row'>
     <td>Test Group/Test case</td>
@@ -241,18 +241,18 @@ function showOutput(id, name) {
 
 <tr class='errorClass'>
     <td>ErrorTestCase</td>
-    <td>1</td>
-    <td>0</td>
-    <td>0</td>
-    <td>1</td>
-    <td>0</td>
+    <td align='center' >1</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
+    <td align='center' >1</td>
+    <td align='center' >0</td>
     <td>
         <a href="javascript:showClassDetail('c1',1)">Detail</a>
     </td>
 </tr>
 <tr id='ft1.1' class='none'>
     <td class='errorCase'><div class='testcase'>test_error: A test that raise an exception</div></td>
-    <td colspan='5' align='center'>
+    <td colspan='6' align='center'>
 
     <!--css div popup start-->
     <a class="popup_link"
@@ -268,8 +268,8 @@ function showOutput(id, name) {
         <pre>
         ft1.1: Traceback (most recent call last):
   File "C:/Users/Lucas/PycharmProjects/HTMLTestRunner/tests.py", line 20, in test_error
-    raise
-TypeError: exceptions must be old-style classes or derived from BaseException, not NoneType
+    raise Exception
+Exception
 
         </pre>
     </div>
@@ -278,18 +278,18 @@ TypeError: exceptions must be old-style classes or derived from BaseException, n
 </tr>
 <tr class='failClass'>
     <td>FailTestCase</td>
-    <td>1</td>
-    <td>0</td>
-    <td>1</td>
-    <td>0</td>
-    <td>0</td>
+    <td align='center' >1</td>
+    <td align='center' >0</td>
+    <td align='center' >1</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
     <td>
         <a href="javascript:showClassDetail('c2',1)">Detail</a>
     </td>
 </tr>
 <tr id='ft2.1' class='none'>
     <td class='failCase'><div class='testcase'>test_fail: A test that fails</div></td>
-    <td colspan='5' align='center'>
+    <td colspan='6' align='center'>
 
     <!--css div popup start-->
     <a class="popup_link"
@@ -315,11 +315,11 @@ AssertionError: False is not true
 </tr>
 <tr class='passClass'>
     <td>PassTestCase</td>
-    <td>1</td>
-    <td>1</td>
-    <td>0</td>
-    <td>0</td>
-    <td>0</td>
+    <td align='center' >1</td>
+    <td align='center' >1</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
     <td>
         <a href="javascript:showClassDetail('c3',1)">Detail</a>
     </td>
@@ -330,13 +330,64 @@ AssertionError: False is not true
     </td>
     <td colspan='6' align='center'>PASS</td>
 </tr>
-<tr id='total_row'>
-    <td>Total</td>
-    <td align='center' >3</td>
-    <td align='center' >1</td>
-    <td align='center' >1</td>
+<tr class='skipClass'>
+    <td>SkipBeforeTestMethodTestCase</td>
     <td align='center' >1</td>
     <td align='center' >0</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
+    <td align='center' >1</td>
+    <td>
+        <a href="javascript:showClassDetail('c4',1)">Detail</a>
+    </td>
+</tr>
+<tr id='ft4.1' class='none'>
+    <td class='skipCase'>
+        <div class='testcase'>test_skip_before_test_method</div>
+    </td>
+    <td colspan='6' align='center'>SKIP</td>
+</tr>
+<tr class='skipClass'>
+    <td>SkipClassTestCase</td>
+    <td align='center' >1</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
+    <td align='center' >1</td>
+    <td>
+        <a href="javascript:showClassDetail('c5',1)">Detail</a>
+    </td>
+</tr>
+<tr id='ft5.1' class='none'>
+    <td class='skipCase'>
+        <div class='testcase'>test_skip_class</div>
+    </td>
+    <td colspan='6' align='center'>SKIP</td>
+</tr>
+<tr class='skipClass'>
+    <td>SkipInsideTestMethodTestCase</td>
+    <td align='center' >1</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
+    <td align='center' >0</td>
+    <td align='center' >1</td>
+    <td>
+        <a href="javascript:showClassDetail('c6',1)">Detail</a>
+    </td>
+</tr>
+<tr id='ft6.1' class='none'>
+    <td class='skipCase'>
+        <div class='testcase'>test_skip_inside_test_method</div>
+    </td>
+    <td colspan='6' align='center'>SKIP</td>
+</tr>
+<tr id='total_row'>
+    <td>Total</td>
+    <td align='center' >6</td>
+    <td align='center' >1</td>
+    <td align='center' >1</td>
+    <td align='center' >1</td>
+    <td align='center' >3</td>
     <td align='center' >&nbsp;</td>
 </tr>
 </table>
