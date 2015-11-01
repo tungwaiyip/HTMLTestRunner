@@ -17,14 +17,32 @@ class FailTestCase(unittest.TestCase):
 class ErrorTestCase(unittest.TestCase):
     def test_error(self):
         """A test that raise an exception"""
-        raise
+        raise Exception
 
+
+class SkipBeforeTestMethodTestCase(unittest.TestCase):
+    @unittest.skip('Skip before test method')
+    def test_skip_before_test_method(self):
+        pass
+
+
+class SkipInsideTestMethodTestCase(unittest.TestCase):
+    def test_skip_inside_test_method(self):
+        self.skipTest('Skip inside test method')
+
+
+@unittest.skip('Skip class')
+class SkipClassTestCase(unittest.TestCase):
+    def test_skip_class(self):
+        pass
 
 if __name__ == '__main__':
     html_report = open('sample_test_report.html', 'w')
     runner = HTMLTestRunner.HTMLTestRunner(stream=html_report, verbosity=2)
 
-    tests = [ErrorTestCase, FailTestCase, PassTestCase]
+    tests = [ErrorTestCase, FailTestCase, PassTestCase,
+             SkipBeforeTestMethodTestCase, SkipClassTestCase,
+             SkipInsideTestMethodTestCase]
 
     loader = unittest.TestLoader()
     t_list = []
