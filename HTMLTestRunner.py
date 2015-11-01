@@ -273,15 +273,18 @@ a.popup_link:hover {
 .popup_window {
     display: none;
     position: relative;
-    left: 0px;
-    top: 0px;
+    width: 95%;
+    height: 95%;
+    margin: 10px 0 15px 0;
     /*border: solid #627173 1px; */
-    padding: 10px;
-    background-color: #E6E6D6;
+    padding: 4px;
+    background-color: #CCC;
     font-family: "Lucida Console", "Courier New", Courier, monospace;
     text-align: left;
     font-size: 8pt;
-    width: 500px;
+
+    word-wrap: break-word;
+
 }
 
 /* -- report ---------------------------------------------------------------- */
@@ -292,9 +295,9 @@ a.popup_link:hover {
 }
 
 #result_table {
-    width: 80%;
+    width: 100%;
     border-collapse: collapse;
-    border: 1px solid #777;
+    border: 1px solid black;
 }
 
 #header_row {
@@ -304,11 +307,17 @@ a.popup_link:hover {
 }
 
 #result_table td {
-    border: 1px solid #777;
+    border: 1px solid black;
+    border: 1px solid black;
     padding: 2px;
+    width: auto;
 }
 
-#total_row  { font-weight: bold; }
+#total_row {
+    font-weight: bold;
+    background-color: #777;
+    color: white;
+}
 
 .passClass  { background-color: #0F0; font-weight: bold;}
 .failClass  { background-color: #F00; font-weight: bold;}
@@ -322,6 +331,13 @@ a.popup_link:hover {
 
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
+
+#close_button {
+    text-align: right;
+    color:red;
+    cursor:pointer;
+    font-weight: bold;
+}
 
 /* -- ending ---------------------------------------------------------------- */
 
@@ -394,7 +410,7 @@ a.popup_link:hover {
     <td align='center' >%(fail)s</td>
     <td align='center' >%(error)s</td>
     <td align='center' >%(skip)s</td>
-    <td>
+    <td align='center' >
         <a href="javascript:showClassDetail('%(cid)s',%(count)s)">Detail</a>
     </td>
 </tr>"""
@@ -411,7 +427,7 @@ a.popup_link:hover {
         %(status)s</a>
 
     <div id='div_%(tid)s' class="popup_window">
-        <div style='text-align: right; color:red;cursor:pointer'>
+        <div id='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_%(tid)s').style.display = 'none'">
            [x]</a>
@@ -616,7 +632,7 @@ class HTMLTestRunner(TemplateMixin):
         if result.error_count:
             status.append('Error %s' % result.error_count)
         if status:
-            status = ' '.join(status)
+            status = ', '.join(status)
         else:
             status = 'none'
         return [

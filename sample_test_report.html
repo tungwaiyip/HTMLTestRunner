@@ -53,15 +53,18 @@ a.popup_link:hover {
 .popup_window {
     display: none;
     position: relative;
-    left: 0px;
-    top: 0px;
+    width: 95%;
+    height: 95%;
+    margin: 10px 0 15px 0;
     /*border: solid #627173 1px; */
-    padding: 10px;
-    background-color: #E6E6D6;
+    padding: 4px;
+    background-color: #CCC;
     font-family: "Lucida Console", "Courier New", Courier, monospace;
     text-align: left;
     font-size: 8pt;
-    width: 500px;
+
+    word-wrap: break-word;
+
 }
 
 /* -- report ---------------------------------------------------------------- */
@@ -72,9 +75,9 @@ a.popup_link:hover {
 }
 
 #result_table {
-    width: 80%;
+    width: 100%;
     border-collapse: collapse;
-    border: 1px solid #777;
+    border: 1px solid black;
 }
 
 #header_row {
@@ -84,11 +87,17 @@ a.popup_link:hover {
 }
 
 #result_table td {
-    border: 1px solid #777;
+    border: 1px solid black;
+    border: 1px solid black;
     padding: 2px;
+    width: auto;
 }
 
-#total_row  { font-weight: bold; }
+#total_row {
+    font-weight: bold;
+    background-color: #777;
+    color: white;
+}
 
 .passClass  { background-color: #0F0; font-weight: bold;}
 .failClass  { background-color: #F00; font-weight: bold;}
@@ -102,6 +111,13 @@ a.popup_link:hover {
 
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
+
+#close_button {
+    text-align: right;
+    color:red;
+    cursor:pointer;
+    font-weight: bold;
+}
 
 /* -- ending ---------------------------------------------------------------- */
 
@@ -208,9 +224,9 @@ function showOutput(id, name) {
 <div class='heading'>
 <h1>Unit Test Report</h1>
 
-    <p class='attribute'><strong>Start Time:</strong> 2015-11-01 20:05:29</p>
-    <p class='attribute'><strong>Duration:</strong> 0:00:00.001000</p>
-    <p class='attribute'><strong>Status:</strong> Pass 1 Skip 3 Failure 1 Error 1</p>
+    <p class='attribute'><strong>Start Time:</strong> 2015-11-01 20:45:05</p>
+    <p class='attribute'><strong>Duration:</strong> 0:00:00.002000</p>
+    <p class='attribute'><strong>Status:</strong> Pass 1, Skip 3, Failure 1, Error 1</p>
 <p class='description'></p>
 </div>
 
@@ -246,7 +262,7 @@ function showOutput(id, name) {
     <td align='center' >0</td>
     <td align='center' >1</td>
     <td align='center' >0</td>
-    <td>
+    <td align='center' >
         <a href="javascript:showClassDetail('c1',1)">Detail</a>
     </td>
 </tr>
@@ -260,7 +276,7 @@ function showOutput(id, name) {
         ERROR</a>
 
     <div id='div_ft1.1' class="popup_window">
-        <div style='text-align: right; color:red;cursor:pointer'>
+        <div id='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_ft1.1').style.display = 'none'">
            [x]</a>
@@ -283,7 +299,7 @@ Exception
     <td align='center' >1</td>
     <td align='center' >0</td>
     <td align='center' >0</td>
-    <td>
+    <td align='center' >
         <a href="javascript:showClassDetail('c2',1)">Detail</a>
     </td>
 </tr>
@@ -297,7 +313,7 @@ Exception
         FAIL</a>
 
     <div id='div_ft2.1' class="popup_window">
-        <div style='text-align: right; color:red;cursor:pointer'>
+        <div id='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_ft2.1').style.display = 'none'">
            [x]</a>
@@ -320,7 +336,7 @@ AssertionError: False is not true
     <td align='center' >0</td>
     <td align='center' >0</td>
     <td align='center' >0</td>
-    <td>
+    <td align='center' >
         <a href="javascript:showClassDetail('c3',1)">Detail</a>
     </td>
 </tr>
@@ -337,7 +353,7 @@ AssertionError: False is not true
     <td align='center' >0</td>
     <td align='center' >0</td>
     <td align='center' >1</td>
-    <td>
+    <td align='center' >
         <a href="javascript:showClassDetail('c4',1)">Detail</a>
     </td>
 </tr>
@@ -354,7 +370,7 @@ AssertionError: False is not true
     <td align='center' >0</td>
     <td align='center' >0</td>
     <td align='center' >1</td>
-    <td>
+    <td align='center' >
         <a href="javascript:showClassDetail('c5',1)">Detail</a>
     </td>
 </tr>
@@ -371,7 +387,7 @@ AssertionError: False is not true
     <td align='center' >0</td>
     <td align='center' >0</td>
     <td align='center' >1</td>
-    <td>
+    <td align='center' >
         <a href="javascript:showClassDetail('c6',1)">Detail</a>
     </td>
 </tr>
