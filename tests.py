@@ -17,13 +17,14 @@ class FailTestCase(unittest.TestCase):
 class ErrorTestCase(unittest.TestCase):
     def test_error(self):
         """A test that raise an exception"""
-        f = open(None, 'r')
+        raise
 
 
 if __name__ == '__main__':
-    html_report = file('sample_test_report.html', 'w')
+    html_report = open('sample_test_report.html', 'w')
+    runner = HTMLTestRunner.HTMLTestRunner(stream=html_report, verbosity=2)
 
-    tests = [ErrorTestCase]
+    tests = [ErrorTestCase, FailTestCase, PassTestCase]
 
     loader = unittest.TestLoader()
     t_list = []
@@ -31,5 +32,5 @@ if __name__ == '__main__':
         cases = loader.loadTestsFromTestCase(t)
         t_list.append(cases)
     suite = unittest.TestSuite(t_list)
-    runner = HTMLTestRunner.HTMLTestRunner(stream=html_report, verbosity=2)
+
     runner.run(suite)
