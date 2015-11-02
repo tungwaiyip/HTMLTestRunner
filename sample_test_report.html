@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -112,7 +113,7 @@ a.popup_link:hover {
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
 
-#close_button {
+.close_button {
     text-align: right;
     color:red;
     cursor:pointer;
@@ -126,10 +127,12 @@ a.popup_link:hover {
 </style>
 </head>
 <body>
-<script language="javascript" type="text/javascript"><!--
+<script language="javascript" type="text/javascript">
+<!--
+
 output_list = Array();
 
-/* level - 0:Summary; 1:Failed; 2:All; 3:Skipped */
+/* Level - 0: Summary; 1: Failed; 2: All; 3: Skipped */
 function showCase(level) {
     trs = document.getElementsByTagName("tr");
     for (var i = 0; i < trs.length; i++) {
@@ -221,13 +224,14 @@ function showOutput(id, name) {
 */
 --></script>
 
-<div class='heading'>
-<h1>Unit Test Report</h1>
 
-    <p class='attribute'><strong>Start Time:</strong> 2015-11-01 20:47:12</p>
-    <p class='attribute'><strong>Duration:</strong> 0:00:00.001000</p>
-    <p class='attribute'><strong>Status:</strong> Pass 1, Skip 3, Failure 1, Error 1</p>
-<p class='description'></p>
+<div class='heading'>
+    <h1>Unit Test Report</h1>
+    
+<p class='attribute'><strong>Start Time:</strong> 2015-11-02 13:24:10</p>
+<p class='attribute'><strong>Duration:</strong> 0:00:00.001000</p>
+<p class='attribute'><strong>Status:</strong> Pass 1, Skip 3, Failure 1, Error 1</p>
+    <p class='description'></p>
 </div>
 
 <p id='show_detail_line'>Show
@@ -276,7 +280,7 @@ function showOutput(id, name) {
         ERROR</a>
 
     <div id='div_ft1.1' class="popup_window">
-        <div id='close_button'>
+        <div class='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_ft1.1').style.display = 'none'">
            [x]</a>
@@ -313,7 +317,7 @@ Exception
         FAIL</a>
 
     <div id='div_ft2.1' class="popup_window">
-        <div id='close_button'>
+        <div class='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_ft2.1').style.display = 'none'">
            [x]</a>
@@ -367,7 +371,7 @@ AssertionError: False is not true
         SKIP</a>
 
     <div id='div_ft4.1' class="popup_window">
-        <div id='close_button'>
+        <div class='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_ft4.1').style.display = 'none'">
            [x]</a>
@@ -400,7 +404,7 @@ AssertionError: False is not true
         SKIP</a>
 
     <div id='div_ft5.1' class="popup_window">
-        <div id='close_button'>
+        <div class='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_ft5.1').style.display = 'none'">
            [x]</a>
@@ -433,7 +437,7 @@ AssertionError: False is not true
         SKIP</a>
 
     <div id='div_ft6.1' class="popup_window">
-        <div id='close_button'>
+        <div class='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_ft6.1').style.display = 'none'">
            [x]</a>

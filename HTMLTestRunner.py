@@ -108,7 +108,8 @@ class TemplateMixin(object):
 # HTML Template
 # ---------------------------------------------------------------------------- #
     # variables: (title, generator, stylesheet, heading, report, ending)
-    HTML_TMPL = r"""<?xml version="1.0" encoding="UTF-8"?>
+    HTML_TMPL = r"""
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -119,10 +120,12 @@ class TemplateMixin(object):
     %(stylesheet)s
 </head>
 <body>
-<script language="javascript" type="text/javascript"><!--
+<script language="javascript" type="text/javascript">
+<!--
+
 output_list = Array();
 
-/* level - 0:Summary; 1:Failed; 2:All; 3:Skipped */
+/* Level - 0: Summary; 1: Failed; 2: All; 3: Skipped */
 function showCase(level) {
     trs = document.getElementsByTagName("tr");
     for (var i = 0; i < trs.length; i++) {
@@ -332,7 +335,7 @@ a.popup_link:hover {
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
 
-#close_button {
+.close_button {
     text-align: right;
     color:red;
     cursor:pointer;
@@ -349,15 +352,16 @@ a.popup_link:hover {
 # Heading
 # ---------------------------------------------------------------------------- #
     # variables: (title, parameters, description)
-    HEADING_TMPL = r"""<div class='heading'>
-<h1>%(title)s</h1>
-%(parameters)s
-<p class='description'>%(description)s</p>
+    HEADING_TMPL = r"""
+<div class='heading'>
+    <h1>%(title)s</h1>
+    %(parameters)s
+    <p class='description'>%(description)s</p>
 </div>"""
 
     # variables: (name, value)
     HEADING_ATTRIBUTE_TMPL = r"""
-    <p class='attribute'><strong>%(name)s:</strong> %(value)s</p>"""
+<p class='attribute'><strong>%(name)s:</strong> %(value)s</p>"""
 
 
 # ---------------------------------------------------------------------------- #
@@ -427,7 +431,7 @@ a.popup_link:hover {
         %(status)s</a>
 
     <div id='div_%(tid)s' class="popup_window">
-        <div id='close_button'>
+        <div class='close_button'>
         <a onfocus='this.blur();'
         onclick="document.getElementById('div_%(tid)s').style.display = 'none'">
            [x]</a>
@@ -528,7 +532,7 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((0, test, output, ''))
         if self.verbosity > 1:
-            sys.stderr.write('ok ')
+            sys.stderr.write('passed  ')
             sys.stderr.write(str(test))
             sys.stderr.write('\n')
         else:
@@ -542,6 +546,7 @@ class _TestResult(TestResult):
         if self.verbosity > 1:
             sys.stderr.write('skipped ')
             sys.stderr.write(str(test))
+            sys.stderr.write(' - ' + str(reason))
             sys.stderr.write('\n')
         else:
             sys.stderr.write('S')
@@ -553,7 +558,7 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((2, test, output, _exc_str))
         if self.verbosity > 1:
-            sys.stderr.write('E  ')
+            sys.stderr.write('error   ')
             sys.stderr.write(str(test))
             sys.stderr.write('\n')
         else:
@@ -566,7 +571,7 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((1, test, output, _exc_str))
         if self.verbosity > 1:
-            sys.stderr.write('F  ')
+            sys.stderr.write('failed  ')
             sys.stderr.write(str(test))
             sys.stderr.write('\n')
         else:
@@ -662,16 +667,16 @@ class HTMLTestRunner(TemplateMixin):
         return self.STYLESHEET_TMPL
 
     def _generate_heading(self, report_attrs):
-        a_lines = []
-        for name, value in report_attrs:
-            line = self.HEADING_ATTRIBUTE_TMPL % dict(
-                name=saxutils.escape(name),
-                value=saxutils.escape(value),
+        attrs_list = []
+        for attr_name, attr_value in report_attrs:
+            attr_line = self.HEADING_ATTRIBUTE_TMPL % dict(
+                name=saxutils.escape(attr_name),
+                value=saxutils.escape(attr_value),
             )
-            a_lines.append(line)
+            attrs_list.append(attr_line)
         heading = self.HEADING_TMPL % dict(
             title=saxutils.escape(self.title),
-            parameters=''.join(a_lines),
+            parameters=''.join(attrs_list),
             description=saxutils.escape(self.description),
         )
         return heading
