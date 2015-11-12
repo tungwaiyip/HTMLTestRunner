@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import StringIO
+import io as StringIO
 import sys
 import unittest
 
@@ -53,9 +53,9 @@ class SampleTest1(unittest.TestCase):
 class SampleOutputTestBase(unittest.TestCase):
     """ Base TestCase. Generates 4 test cases x different content type. """
     def test_1(self):
-        print self.MESSAGE
+        print(self.MESSAGE)
     def test_2(self):
-        print >>sys.stderr, self.MESSAGE
+        print(self.MESSAGE, file=sys.stderr)
     def test_3(self):
         self.fail(self.MESSAGE)
     def test_4(self):
@@ -68,7 +68,7 @@ class SampleTestHTML(SampleOutputTestBase):
     MESSAGE = 'the message is 5 symbols: <>&"\'\nplus the HTML entity string: [&copy;] on a second line'
 
 class SampleTestLatin1(SampleOutputTestBase):
-    MESSAGE = u'the message is áéíóú'.encode('latin-1')
+    MESSAGE = 'the message is áéíóú'.encode('latin-1')
 
 class SampleTestUnicode(SampleOutputTestBase):
     u""" Unicode (統一碼) test """
@@ -196,6 +196,7 @@ the message is \u8563
 
 >test_2<
 pass
+
 the message is \u8563
 
 >test_3<
@@ -214,11 +215,11 @@ Total
 </html>
 """
         # check out the output
-        byte_output = buf.getvalue()
+        str_output = buf.getvalue()
         # output the main test output for debugging & demo
-        print byte_output
+        print(str_output)
         # HTMLTestRunner pumps UTF-8 output
-        output = byte_output.decode('utf-8')
+        output = str_output
         self._checkoutput(output,EXPECTED)
 
 
@@ -229,7 +230,7 @@ Total
                 continue
             j = output.find(p,i)
             if j < 0:
-                self.fail(safe_str('Pattern not found lineno %s: "%s"' % (lineno+1,p)))
+                self.fail('Pattern not found lineno %s: "%s"' % (lineno+1,p))
             i = j + len(p)
 
 
@@ -250,4 +251,3 @@ if __name__ == "__main__":
     # we will use standard library's TextTestRunner to reduce the nesting
     # that may confuse people.
     #HTMLTestRunner.main(argv=argv)
-
