@@ -1,5 +1,4 @@
-# TODO: color stderr
-# TODO: simplify javascript using ,ore than 1 class in the class attribute?
+__version__ = "1.0.0"
 
 import datetime
 import io as StringIO
