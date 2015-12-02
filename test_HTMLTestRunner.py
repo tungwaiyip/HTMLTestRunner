@@ -3,251 +3,47 @@
 import io as StringIO
 import sys
 import unittest
-
 import HTMLTestRunner
 
-# ----------------------------------------------------------------------
+import tests
+from tests.SampleTestPass import SampleTestPass
+from tests.SampleTestFail import SampleTestFail
+from tests.SampleTestBasic import SampleTestBasic
 
-def safe_unicode(obj, *args):
-    """ return the unicode representation of obj """
-    try:
-        return unicode(obj, *args)
-    except UnicodeDecodeError:
-        # obj is byte string
-        ascii_text = str(obj).encode('string_escape')
-        return unicode(ascii_text)
-
-def safe_str(obj):
-    """ return the byte string representation of obj """
-    try:
-        return str(obj)
-    except UnicodeEncodeError:
-        # obj is unicode
-        return unicode(obj).encode('unicode_escape')
-
-# ----------------------------------------------------------------------
-# Sample tests to drive the HTMLTestRunner
-
-class SampleTest0(unittest.TestCase):
-    """ A class that passes.
-
-    This simple class has only one test case that passes.
-    """
-    def __init__(self, methodName):
-        unittest.TestCase.__init__(self, methodName)
-
-    def test_pass_no_output(self):
-        """        test description
-        """
-        pass
-
-class SampleTest1(unittest.TestCase):
-    """ A class that fails.
-
-    This simple class has only one test case that fails.
-    """
-    def test_fail(self):
-        u""" test description (描述) """
-        self.fail()
-
-class SampleOutputTestBase(unittest.TestCase):
-    """ Base TestCase. Generates 4 test cases x different content type. """
-    def test_1(self):
-        print(self.MESSAGE)
-    def test_2(self):
-        print(self.MESSAGE, file=sys.stderr)
-    def test_3(self):
-        self.fail(self.MESSAGE)
-    def test_4(self):
-        raise RuntimeError(self.MESSAGE)
-
-class SampleTestBasic(SampleOutputTestBase):
-    MESSAGE = 'basic test'
-
-class SampleTestHTML(SampleOutputTestBase):
-    MESSAGE = 'the message is 5 symbols: <>&"\'\nplus the HTML entity string: [&copy;] on a second line'
-
-class SampleTestLatin1(SampleOutputTestBase):
-    MESSAGE = 'the message is áéíóú'.encode('latin-1')
-
-class SampleTestUnicode(SampleOutputTestBase):
-    u""" Unicode (統一碼) test """
-    MESSAGE = u'the message is \u8563'
-    # 2006-04-25 Note: Exception would show up as
-    # AssertionError: <unprintable instance object>
-    #
-    # This seems to be limitation of traceback.format_exception()
-    # Same result in standard unittest.
-
-    # 2011-03-28 Note: I think it is fixed in Python 2.6
-    def test_pass(self):
-        u""" A test with Unicode (統一碼) docstring """
-        pass
-
-
-# ------------------------------------------------------------------------
-# This is the main test on HTMLTestRunner
-
-class Test_HTMLTestRunner(unittest.TestCase):
-
-    def test0(self):
+class TestHTMLTestRunner(unittest.TestCase):
+    
+    def setUp(self):
+   
         self.suite = unittest.TestSuite()
-        buf = StringIO.StringIO()
-        runner = HTMLTestRunner.HTMLTestRunner(buf)
-        runner.run(self.suite)
-        # didn't blow up? ok.
-        self.assert_('</html>' in buf.getvalue())
+        self.loader = unittest.TestLoader()
 
-    def test_main(self):
-        # Run HTMLTestRunner. Verify the HTML report.
+        self.suite.addTests(self.loader.loadTestsFromModule(tests.SampleTestPass))
+        self.suite.addTests(self.loader.loadTestsFromModule(tests.SampleTestFail))
+        self.suite.addTests(self.loader.loadTestsFromModule(tests.SampleTestBasic))
 
-        # suite of TestCases
-        self.suite = unittest.TestSuite()
-        self.suite.addTests([
-            unittest.defaultTestLoader.loadTestsFromTestCase(SampleTest0),
-            unittest.defaultTestLoader.loadTestsFromTestCase(SampleTest1),
-            unittest.defaultTestLoader.loadTestsFromTestCase(SampleTestBasic),
-            unittest.defaultTestLoader.loadTestsFromTestCase(SampleTestHTML),
-            unittest.defaultTestLoader.loadTestsFromTestCase(SampleTestLatin1),
-            unittest.defaultTestLoader.loadTestsFromTestCase(SampleTestUnicode),
-            ])
+        self.results_output_buffer = StringIO.StringIO()
+        HTMLTestRunner.HTMLTestRunner(stream=self.results_output_buffer).run(self.suite)
+        self.byte_output = self.results_output_buffer.getvalue()
 
-        # Invoke TestRunner
-        buf = StringIO.StringIO()
-        #runner = unittest.TextTestRunner(buf)       #DEBUG: this is the unittest baseline
-        runner = HTMLTestRunner.HTMLTestRunner(
-                    stream=buf,
-                    title='<Demo Test>',
-                    description='This demonstrates the report output by HTMLTestRunner.'
-                    )
-        runner.run(self.suite)
-
-        # Define the expected output sequence. This is imperfect but should
-        # give a good sense of the well being of the test.
-        EXPECTED = u"""
-Demo Test
-
->SampleTest0:
-
->SampleTest1:
-
->SampleTestBasic
->test_1<
-pass
-basic test
-
->test_2<
-pass
-basic test
-
->test_3<
-fail
-AssertionError: basic test
-
->test_4<
-error
-RuntimeError: basic test
+    def test_SampleTestPass(self):
+        output1="".join(self.byte_output.split())
+        output2="".join(SampleTestPass.EXPECTED_RESULT.split())
+        self.assertGreater(output1.find(output2),0)
+        
+    def test_SampleTestFail(self):
+        output1="".join(self.byte_output.split())
+        output2="".join(SampleTestFail.EXPECTED_RESULT.split())
+        self.assertGreater(output1.find(output2),0)
+        
+    def test_SampleTestBasic(self):
+        output1="".join(self.byte_output.split())
+        output2="".join(SampleTestBasic.EXPECTED_RESULT.split())
+        self.assertGreater(output1.find(output2),0)
 
 
->SampleTestHTML
->test_1<
-pass
-the message is 5 symbols: &lt;&gt;&amp;"'
-plus the HTML entity string: [&amp;copy;] on a second line
+def main():
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestHTMLTestRunner)
+    unittest.TextTestRunner().run(suite)
 
->test_2<
-pass
-the message is 5 symbols: &lt;&gt;&amp;"'
-plus the HTML entity string: [&amp;copy;] on a second line
-
->test_3<
-fail
-AssertionError: the message is 5 symbols: &lt;&gt;&amp;"'
-plus the HTML entity string: [&amp;copy;] on a second line
-
->test_4<
-error
-RuntimeError: the message is 5 symbols: &lt;&gt;&amp;"'
-plus the HTML entity string: [&amp;copy;] on a second line
-
-
->SampleTestLatin1
->test_1<
-pass
-the message is áéíóú
-
->test_2<
-pass
-the message is áéíóú
-
->test_3<
-fail
-AssertionError: the message is áéíóú
-
->test_4<
-error
-RuntimeError: the message is áéíóú
-
-
->SampleTestUnicode
->test_1<
-pass
-the message is \u8563
-
->test_2<
-pass
-
-the message is \u8563
-
->test_3<
-fail
-AssertionError:
-
->test_4<
-error
-RuntimeError:
-
-Total
->19<
->10<
->5<
->4<
-</html>
-"""
-        # check out the output
-        str_output = buf.getvalue()
-        # output the main test output for debugging & demo
-        print(str_output)
-        # HTMLTestRunner pumps UTF-8 output
-        output = str_output
-        self._checkoutput(output,EXPECTED)
-
-
-    def _checkoutput(self,output,EXPECTED):
-        i = 0
-        for lineno, p in enumerate(EXPECTED.splitlines()):
-            if not p:
-                continue
-            j = output.find(p,i)
-            if j < 0:
-                self.fail('Pattern not found lineno %s: "%s"' % (lineno+1,p))
-            i = j + len(p)
-
-
-
-
-##############################################################################
-# Executing this module from the command line
-##############################################################################
-
-import unittest
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        argv = sys.argv
-    else:
-        argv=['test_HTMLTestRunner.py', 'Test_HTMLTestRunner']
-    unittest.main(argv=argv)
-    # Testing HTMLTestRunner with HTMLTestRunner would work. But instead
-    # we will use standard library's TextTestRunner to reduce the nesting
-    # that may confuse people.
-    #HTMLTestRunner.main(argv=argv)
+    main()
