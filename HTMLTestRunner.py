@@ -1,100 +1,7 @@
-"""
-A TestRunner for use with the Python unit testing framework. It
-generates a HTML report to show the result at a glance.
-
-The simplest way to use this is to invoke its main method. E.g.
-
-    import unittest
-    import HTMLTestRunner
-
-    ... define your tests ...
-
-    if __name__ == '__main__':
-        HTMLTestRunner.main()
-
-
-For more customization options, instantiates a HTMLTestRunner object.
-HTMLTestRunner is a counterpart to unittest's TextTestRunner. E.g.
-
-    # output to a file
-    fp = file('my_report.html', 'wb')
-    runner = HTMLTestRunner.HTMLTestRunner(
-                stream=fp,
-                title='My unit test',
-                description='This demonstrates the report output by HTMLTestRunner.'
-                )
-
-    # Use an external stylesheet.
-    # See the Template_mixin class for more customizable options
-    runner.STYLESHEET_TMPL = '<link rel="stylesheet" href="my_stylesheet.css" type="text/css">'
-
-    # run the test
-    runner.run(my_test_suite)
-
-
-------------------------------------------------------------------------
-Copyright (c) 2004-2007, Wai Yip Tung
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-* Redistributions of source code must retain the above copyright notice,
-  this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in the
-  documentation and/or other materials provided with the distribution.
-* Neither the name Wai Yip Tung nor the names of its contributors may be
-  used to endorse or promote products derived from this software without
-  specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""
-
-# URL: http://tungwaiyip.info/software/HTMLTestRunner.html
-
-__author__ = "Wai Yip Tung"
-__version__ = "0.8.3"
-
-
-"""
-Change History
-
-Version 0.8.3
-* Prevent crash on class or module-level exceptions (Darren Wurf).
-
-Version 0.8.2
-* Show output inline instead of popup window (Viorel Lupu).
-
-Version in 0.8.1
-* Validated XHTML (Wolfgang Borgert).
-* Added description of test classes and test cases.
-
-Version in 0.8.0
-* Define Template_mixin class for customization.
-* Workaround a IE 6 bug that it does not treat <script> block as CDATA.
-
-Version in 0.7.1
-* Back port to Python 2.3 (Frank Horowitz).
-* Fix missing scroll bars in detail log (Podi).
-"""
-
-# TODO: color stderr
-# TODO: simplify javascript using ,ore than 1 class in the class attribute?
+__version__ = "1.0.0"
 
 import datetime
-import StringIO
+import io as StringIO
 import sys
 import time
 import unittest
@@ -114,7 +21,7 @@ from xml.sax import saxutils
 
 def to_unicode(s):
     try:
-        return unicode(s)
+        return str(s)
     except UnicodeDecodeError:
         # s is non ascii byte string
         return s.decode('unicode_escape')
@@ -639,7 +546,7 @@ class HTMLTestRunner(Template_mixin):
         test(result)
         self.stopTime = datetime.datetime.now()
         self.generateReport(test, result)
-        print >>sys.stderr, '\nTime Elapsed: %s' % (self.stopTime-self.startTime)
+        print('Time Elapsed: {}'.format((self.stopTime-self.startTime)), file=sys.stderr)
         return result
 
 
@@ -650,7 +557,7 @@ class HTMLTestRunner(Template_mixin):
         classes = []
         for n,t,o,e in result_list:
             cls = t.__class__
-            if not rmap.has_key(cls):
+            if not cls in rmap:
                 rmap[cls] = []
                 classes.append(cls)
             rmap[cls].append((n,t,o,e))
@@ -695,7 +602,7 @@ class HTMLTestRunner(Template_mixin):
             report = report,
             ending = ending,
         )
-        self.stream.write(output.encode('utf8'))
+        self.stream.write(output)
 
 
     def _generate_stylesheet(self):
@@ -774,13 +681,13 @@ class HTMLTestRunner(Template_mixin):
         if isinstance(o,str):
             # TODO: some problem with 'string_escape': it escape \n and mess up formating
             # uo = unicode(o.encode('string_escape'))
-            uo = o.decode('latin-1')
+            uo = bytes(o, 'utf-8').decode('latin-1')
         else:
             uo = o
         if isinstance(e,str):
             # TODO: some problem with 'string_escape': it escape \n and mess up formating
             # ue = unicode(e.encode('string_escape'))
-            ue = e.decode('latin-1')
+            ue = bytes(e, 'utf-8').decode('latin-1')
         else:
             ue = e
 
