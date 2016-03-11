@@ -61,7 +61,7 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-
+from __future__ import print_function, absolute_import
 # URL: http://tungwaiyip.info/software/HTMLTestRunner.html
 
 __author__ = "Wai Yip Tung"
@@ -186,6 +186,7 @@ class Template_mixin(object):
     0: 'pass',
     1: 'fail',
     2: 'error',
+    3: 'skip',
     }
 
     DEFAULT_TITLE = 'Unit Test Report'
@@ -385,9 +386,11 @@ a.popup_link:hover {
 }
 #total_row  { font-weight: bold; }
 .passClass  { background-color: #6c6; }
+.skipClass  { background-color: yellow; }
 .failClass  { background-color: #c60; }
 .errorClass { background-color: #c00; }
 .passCase   { color: #6c6; }
+.skipCase   { color: #c60; font-weight: bold; }
 .failCase   { color: #c60; font-weight: bold; }
 .errorCase  { color: #c00; font-weight: bold; }
 .hiddenRow  { display: none; }
@@ -443,6 +446,7 @@ a.popup_link:hover {
     <td>Test Group/Test case</td>
     <td>Count</td>
     <td>Pass</td>
+    <td>Skip</td>
     <td>Fail</td>
     <td>Error</td>
     <td>View</td>
@@ -452,6 +456,7 @@ a.popup_link:hover {
     <td>Total</td>
     <td>%(count)s</td>
     <td>%(Pass)s</td>
+    <td>%(skip)s</td>
     <td>%(fail)s</td>
     <td>%(error)s</td>
     <td>&nbsp;</td>
@@ -464,6 +469,7 @@ a.popup_link:hover {
     <td>%(desc)s</td>
     <td>%(count)s</td>
     <td>%(Pass)s</td>
+    <td>%(skip)s</td>
     <td>%(fail)s</td>
     <td>%(error)s</td>
     <td><a href="javascript:showClassDetail('%(cid)s',%(count)s)">Detail</a></td>
@@ -474,7 +480,7 @@ a.popup_link:hover {
     REPORT_TEST_WITH_OUTPUT_TMPL = r"""
 <tr id='%(tid)s' class='%(Class)s'>
     <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'>
+    <td colspan='6' align='center'>
 
     <!--css div popup start-->
     <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_%(tid)s')" >
@@ -499,7 +505,7 @@ a.popup_link:hover {
     REPORT_TEST_NO_OUTPUT_TMPL = r"""
 <tr id='%(tid)s' class='%(Class)s'>
     <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'>%(status)s</td>
+    <td colspan='6' align='center'>%(status)s</td>
 </tr>
 """ # variables: (tid, Class, style, desc, status)
 
@@ -533,6 +539,7 @@ class _TestResult(TestResult):
         self.success_count = 0
         self.failure_count = 0
         self.error_count = 0
+        self.skip_count = 0
         self.verbosity = verbosity
 
         # result is a list of result in 4 tuple
@@ -614,6 +621,19 @@ class _TestResult(TestResult):
         else:
             sys.stderr.write('F')
 
+    def addSkip(self, test, err):
+        self.skip_count += 1
+        TestResult.addSkip(self, test, err)
+        _, _exc_str = self.skipped[-1]
+        output = self.complete_output()
+        self.result.append((3, test, output, _exc_str))
+        if self.verbosity > 1:
+            sys.stderr.write('S  ')
+            sys.stderr.write(str(test))
+            sys.stderr.write('\n')
+        else:
+            sys.stderr.write('S')
+
 
 class HTMLTestRunner(Template_mixin):
     """
@@ -639,7 +659,7 @@ class HTMLTestRunner(Template_mixin):
         test(result)
         self.stopTime = datetime.datetime.now()
         self.generateReport(test, result)
-        print >>sys.stderr, '\nTime Elapsed: %s' % (self.stopTime-self.startTime)
+        print('\nTime Elapsed: %s' % (self.stopTime-self.startTime), file=sys.stderr)
         return result
 
 
@@ -667,6 +687,7 @@ class HTMLTestRunner(Template_mixin):
         duration = str(self.stopTime - self.startTime)
         status = []
         if result.success_count: status.append('Pass %s'    % result.success_count)
+        if result.skip_count:    status.append('Skip %s'   % result.skip_count  )
         if result.failure_count: status.append('Failure %s' % result.failure_count)
         if result.error_count:   status.append('Error %s'   % result.error_count  )
         if status:
@@ -723,11 +744,12 @@ class HTMLTestRunner(Template_mixin):
         sortedResult = self.sortResult(result.result)
         for cid, (cls, cls_results) in enumerate(sortedResult):
             # subtotal for a class
-            np = nf = ne = 0
+            np = ns = nf = ne = 0
             for n,t,o,e in cls_results:
                 if n == 0: np += 1
                 elif n == 1: nf += 1
-                else: ne += 1
+                elif n == 2: ne += 1
+                elif n == 3: ns += 1
 
             # format class description
             if cls.__module__ == "__main__":
@@ -738,10 +760,11 @@ class HTMLTestRunner(Template_mixin):
             desc = doc and '%s: %s' % (name, doc) or name
 
             row = self.REPORT_CLASS_TMPL % dict(
-                style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
+                style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or ns and 'skipClass' or 'passClass',
                 desc = desc,
-                count = np+nf+ne,
+                count = np+ns+nf+ne,
                 Pass = np,
+                skip = ns,
                 fail = nf,
                 error = ne,
                 cid = 'c%s' % (cid+1),
@@ -753,8 +776,9 @@ class HTMLTestRunner(Template_mixin):
 
         report = self.REPORT_TMPL % dict(
             test_list = ''.join(rows),
-            count = str(result.success_count+result.failure_count+result.error_count),
+            count = str(result.success_count+result.failure_count+result.error_count+result.skip_count),
             Pass = str(result.success_count),
+            skip = str(result.skip_count),
             fail = str(result.failure_count),
             error = str(result.error_count),
         )
