@@ -2,10 +2,9 @@ __version__ = "1.0.1"
 
 from datetime import datetime
 from io import StringIO
-from sys import stdout, stderr
-from unittest import TestResult
-from unittest import TestProgram as Tp
+from unittest import TestResult, TestProgram
 from xml.sax import saxutils
+import sys
 
 
 # ------------------------------------------------------------------------
@@ -41,8 +40,8 @@ class OutputRedirector(object):
     def flush(self):
         self.fp.flush()
 
-stdout_redirector = OutputRedirector(stdout)
-stderr_redirector = OutputRedirector(stderr)
+stdout_redirector = OutputRedirector(sys.stdout)
+stderr_redirector = OutputRedirector(sys.stderr)
 
 
 
@@ -455,8 +454,8 @@ class _TestResult(TestResult):
         # just one buffer for both stdout and stderr
         stdout_redirector.fp = self.outputBuffer
         stderr_redirector.fp = self.outputBuffer
-        self.stdout0 = stdout
-        self.stderr0 = stderr
+        self.stdout0 = sys.stdout
+        self.stderr0 = sys.stderr
         stdout = stdout_redirector
         stderr = stderr_redirector
 
@@ -487,11 +486,11 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((0, test, output, ''))
         if self.verbosity > 1:
-            stderr.write('ok ')
-            stderr.write(str(test))
-            stderr.write('\n')
+            sys.stderr.write('ok ')
+            sys.stderr.write(str(test))
+            sys.stderr.write('\n')
         else:
-            stderr.write('.')
+            sys.stderr.write('.')
 
     def addError(self, test, err):
         self.error_count += 1
@@ -500,11 +499,11 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((2, test, output, _exc_str))
         if self.verbosity > 1:
-            stderr.write('E  ')
-            stderr.write(str(test))
-            stderr.write('\n')
+            sys.stderr.write('E  ')
+            sys.stderr.write(str(test))
+            sys.stderr.write('\n')
         else:
-            stderr.write('E')
+            sys.stderr.write('E')
 
     def addFailure(self, test, err):
         self.failure_count += 1
@@ -513,17 +512,17 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((1, test, output, _exc_str))
         if self.verbosity > 1:
-            stderr.write('F  ')
-            stderr.write(str(test))
-            stderr.write('\n')
+            sys.stderr.write('F  ')
+            sys.stderr.write(str(test))
+            sys.stderr.write('\n')
         else:
-            stderr.write('F')
+            sys.stderr.write('F')
 
 
 class HTMLTestRunner(Template_mixin):
     """
     """
-    def __init__(self, stream=stdout, verbosity=1, title=None, description=None):
+    def __init__(self, stream=sys.stdout, verbosity=1, title=None, description=None):
         self.stream = stream
         self.verbosity = verbosity
         if title is None:
@@ -544,7 +543,7 @@ class HTMLTestRunner(Template_mixin):
         test(result)
         self.stopTime = datetime.now()
         self.generateReport(test, result)
-        print('Time Elapsed: {}'.format((self.stopTime-self.startTime)), file=stderr)
+        print('Time Elapsed: {}'.format((self.stopTime-self.startTime)), file=sys.stderr)
         return result
 
 
@@ -717,7 +716,7 @@ class HTMLTestRunner(Template_mixin):
 # Note: Reuse unittest.TestProgram to launch test. In the future we may
 # build our own launcher to support more specific command line
 # parameters like test title, CSS, etc.
-class TestProgram(Tp):
+class _TestProgram(TestProgram):
     """
     A variation of the unittest.TestProgram. Please refer to the base
     class for command line parameters.
@@ -728,9 +727,9 @@ class TestProgram(Tp):
         # we have to instantiate HTMLTestRunner before we know self.verbosity.
         if self.testRunner is None:
             self.testRunner = HTMLTestRunner(verbosity=self.verbosity)
-        Tp.runTests(self)
+        TestProgram.runTests(self)
 
-main = TestProgram
+main = _TestProgram
 
 ##############################################################################
 # Executing this module from the command line
