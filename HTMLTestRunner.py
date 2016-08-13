@@ -1,17 +1,17 @@
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
-import datetime
-import io as StringIO
-import sys
-import time
-import unittest
+from datetime import datetime
+from io import StringIO
+from sys import stdout, stderr
+from unittest import TestResult
+from unittest import TestProgram as Tp
 from xml.sax import saxutils
 
 
 # ------------------------------------------------------------------------
 # The redirectors below are used to capture output during testing. Output
-# sent to sys.stdout and sys.stderr are automatically captured. However
-# in some cases sys.stdout is already cached before HTMLTestRunner is
+# sent to stdout and stderr are automatically captured. However
+# in some cases stdout is already cached before HTMLTestRunner is
 # invoked (e.g. calling logging.basicConfig). In order to capture those
 # output, use the redirectors for the cached stream.
 #
@@ -41,8 +41,8 @@ class OutputRedirector(object):
     def flush(self):
         self.fp.flush()
 
-stdout_redirector = OutputRedirector(sys.stdout)
-stderr_redirector = OutputRedirector(sys.stderr)
+stdout_redirector = OutputRedirector(stdout)
+stderr_redirector = OutputRedirector(stderr)
 
 
 
@@ -426,15 +426,13 @@ a.popup_link:hover {
 # -------------------- The end of the Template class -------------------
 
 
-TestResult = unittest.TestResult
-
 class _TestResult(TestResult):
     # note: _TestResult is a pure representation of results.
     # It lacks the output and reporting ability compares to unittest._TextTestResult.
 
     def __init__(self, verbosity=1):
         TestResult.__init__(self)
-        self.outputBuffer = StringIO.StringIO()
+        self.outputBuffer = StringIO()
         self.stdout0 = None
         self.stderr0 = None
         self.success_count = 0
@@ -457,10 +455,10 @@ class _TestResult(TestResult):
         # just one buffer for both stdout and stderr
         stdout_redirector.fp = self.outputBuffer
         stderr_redirector.fp = self.outputBuffer
-        self.stdout0 = sys.stdout
-        self.stderr0 = sys.stderr
-        sys.stdout = stdout_redirector
-        sys.stderr = stderr_redirector
+        self.stdout0 = stdout
+        self.stderr0 = stderr
+        stdout = stdout_redirector
+        stderr = stderr_redirector
 
 
     def complete_output(self):
@@ -469,8 +467,8 @@ class _TestResult(TestResult):
         Safe to call multiple times.
         """
         if self.stdout0:
-            sys.stdout = self.stdout0
-            sys.stderr = self.stderr0
+            stdout = self.stdout0
+            stderr = self.stderr0
             self.stdout0 = None
             self.stderr0 = None
         return self.outputBuffer.getvalue()
@@ -489,11 +487,11 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((0, test, output, ''))
         if self.verbosity > 1:
-            sys.stderr.write('ok ')
-            sys.stderr.write(str(test))
-            sys.stderr.write('\n')
+            stderr.write('ok ')
+            stderr.write(str(test))
+            stderr.write('\n')
         else:
-            sys.stderr.write('.')
+            stderr.write('.')
 
     def addError(self, test, err):
         self.error_count += 1
@@ -502,11 +500,11 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((2, test, output, _exc_str))
         if self.verbosity > 1:
-            sys.stderr.write('E  ')
-            sys.stderr.write(str(test))
-            sys.stderr.write('\n')
+            stderr.write('E  ')
+            stderr.write(str(test))
+            stderr.write('\n')
         else:
-            sys.stderr.write('E')
+            stderr.write('E')
 
     def addFailure(self, test, err):
         self.failure_count += 1
@@ -515,17 +513,17 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((1, test, output, _exc_str))
         if self.verbosity > 1:
-            sys.stderr.write('F  ')
-            sys.stderr.write(str(test))
-            sys.stderr.write('\n')
+            stderr.write('F  ')
+            stderr.write(str(test))
+            stderr.write('\n')
         else:
-            sys.stderr.write('F')
+            stderr.write('F')
 
 
 class HTMLTestRunner(Template_mixin):
     """
     """
-    def __init__(self, stream=sys.stdout, verbosity=1, title=None, description=None):
+    def __init__(self, stream=stdout, verbosity=1, title=None, description=None):
         self.stream = stream
         self.verbosity = verbosity
         if title is None:
@@ -537,16 +535,16 @@ class HTMLTestRunner(Template_mixin):
         else:
             self.description = description
 
-        self.startTime = datetime.datetime.now()
+        self.startTime = datetime.now()
 
 
     def run(self, test):
         "Run the given test case or test suite."
         result = _TestResult(self.verbosity)
         test(result)
-        self.stopTime = datetime.datetime.now()
+        self.stopTime = datetime.now()
         self.generateReport(test, result)
-        print('Time Elapsed: {}'.format((self.stopTime-self.startTime)), file=sys.stderr)
+        print('Time Elapsed: {}'.format((self.stopTime-self.startTime)), file=stderr)
         return result
 
 
@@ -719,7 +717,7 @@ class HTMLTestRunner(Template_mixin):
 # Note: Reuse unittest.TestProgram to launch test. In the future we may
 # build our own launcher to support more specific command line
 # parameters like test title, CSS, etc.
-class TestProgram(unittest.TestProgram):
+class TestProgram(Tp):
     """
     A variation of the unittest.TestProgram. Please refer to the base
     class for command line parameters.
@@ -730,7 +728,7 @@ class TestProgram(unittest.TestProgram):
         # we have to instantiate HTMLTestRunner before we know self.verbosity.
         if self.testRunner is None:
             self.testRunner = HTMLTestRunner(verbosity=self.verbosity)
-        unittest.TestProgram.runTests(self)
+        Tp.runTests(self)
 
 main = TestProgram
 
