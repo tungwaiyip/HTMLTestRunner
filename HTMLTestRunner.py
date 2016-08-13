@@ -456,8 +456,8 @@ class _TestResult(TestResult):
         stderr_redirector.fp = self.outputBuffer
         self.stdout0 = sys.stdout
         self.stderr0 = sys.stderr
-        stdout = stdout_redirector
-        stderr = stderr_redirector
+        sys.stdout = stdout_redirector
+        sys.stderr = stderr_redirector
 
 
     def complete_output(self):
@@ -466,8 +466,8 @@ class _TestResult(TestResult):
         Safe to call multiple times.
         """
         if self.stdout0:
-            stdout = self.stdout0
-            stderr = self.stderr0
+            sys.stdout = self.stdout0
+            sys.stderr = self.stderr0
             self.stdout0 = None
             self.stderr0 = None
         return self.outputBuffer.getvalue()
