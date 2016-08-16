@@ -10,3 +10,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and http://kee
 - Moved license content from python file to LICENSE
 - Updated README to reflect current state of project
 - Upgraded to support Python 3.4.3
+
+### Changed
+- Imported select functions only rather than the entire module.
+- Added Contributor Dark-Passenger to Readme
