@@ -59,6 +59,7 @@ as-is.
 
 Way Yip Tung - https://github.com/tungwaiyip
 Asish Dash - https://github.com/dash0002
+Dhruv Paranjape - https://github.com/dark-passenger
 
 Contributions are gladly accepted as this is a side project at best.  Please, also
 consider this when looking at feedback cycles, issues, pull requests, etc.
