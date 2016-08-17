@@ -495,7 +495,7 @@ class _TestResult(TestResult):
     def addError(self, test, err):
         self.error_count += 1
         TestResult.addError(self, test, err)
-        _, _exc_str = self.errors[-1]
+        _exc_str = self.errors[-1][1]
         output = self.complete_output()
         self.result.append((2, test, output, _exc_str))
         if self.verbosity > 1:
@@ -508,7 +508,7 @@ class _TestResult(TestResult):
     def addFailure(self, test, err):
         self.failure_count += 1
         TestResult.addFailure(self, test, err)
-        _, _exc_str = self.failures[-1]
+        _exc_str = self.failures[-1][1]
         output = self.complete_output()
         self.result.append((1, test, output, _exc_str))
         if self.verbosity > 1:
@@ -534,14 +534,14 @@ class HTMLTestRunner(Template_mixin):
         else:
             self.description = description
 
-        self.startTime = datetime.now()
+        self.startTime = datetime.now().replace(microsecond=0)
 
 
     def run(self, test):
         "Run the given test case or test suite."
         result = _TestResult(self.verbosity)
         test(result)
-        self.stopTime = datetime.now()
+        self.stopTime = datetime.now().replace(microsecond=0)
         self.generateReport(test, result)
         print('Time Elapsed: {}'.format((self.stopTime-self.startTime)), file=sys.stderr)
         return result
@@ -567,7 +567,7 @@ class HTMLTestRunner(Template_mixin):
         Return report attributes as a list of (name, value).
         Override this to add custom attributes.
         """
-        startTime = str(self.startTime)[:19]
+        startTime = str(self.startTime)
         duration = str(self.stopTime - self.startTime)
         status = []
         if result.success_count: status.append('Pass %s'    % result.success_count)
