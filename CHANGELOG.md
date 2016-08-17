@@ -13,4 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and http://kee
 
 ### Changed
 - Imported select functions only rather than the entire module.
+- remove unused variables.
+- Remove string slice and use a datetime function instead.
+- Now compatible with python 3.5.2
 - Added Contributor Dark-Passenger to Readme
