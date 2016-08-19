@@ -43,7 +43,7 @@ by dash0002.  In it's current iteration and maintenance, our goals are still the
 to be able to quickly generate an HTML test report.
 
 ## Installation
-Supporting Python 3.4.3
+Supporting Python 3 - 3.5
 
 ### PIP (recommended)
 
@@ -60,6 +60,7 @@ as-is.
 Way Yip Tung - https://github.com/tungwaiyip
 Asish Dash - https://github.com/dash0002
 Dhruv Paranjape - https://github.com/dark-passenger
+Ethan Estrada - https://github.com/eestrada
 
 Contributions are gladly accepted as this is a side project at best.  Please, also
 consider this when looking at feedback cycles, issues, pull requests, etc.
