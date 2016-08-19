@@ -1,17 +1,16 @@
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
-import datetime
-import io as StringIO
-import sys
-import time
-import unittest
+from datetime import datetime
+from io import StringIO
+from unittest import TestResult, TestProgram
 from xml.sax import saxutils
+import sys
 
 
 # ------------------------------------------------------------------------
 # The redirectors below are used to capture output during testing. Output
-# sent to sys.stdout and sys.stderr are automatically captured. However
-# in some cases sys.stdout is already cached before HTMLTestRunner is
+# sent to stdout and stderr are automatically captured. However
+# in some cases stdout is already cached before HTMLTestRunner is
 # invoked (e.g. calling logging.basicConfig). In order to capture those
 # output, use the redirectors for the cached stream.
 #
@@ -426,15 +425,13 @@ a.popup_link:hover {
 # -------------------- The end of the Template class -------------------
 
 
-TestResult = unittest.TestResult
-
 class _TestResult(TestResult):
     # note: _TestResult is a pure representation of results.
     # It lacks the output and reporting ability compares to unittest._TextTestResult.
 
     def __init__(self, verbosity=1):
         TestResult.__init__(self)
-        self.outputBuffer = StringIO.StringIO()
+        self.outputBuffer = StringIO()
         self.stdout0 = None
         self.stderr0 = None
         self.success_count = 0
@@ -498,7 +495,7 @@ class _TestResult(TestResult):
     def addError(self, test, err):
         self.error_count += 1
         TestResult.addError(self, test, err)
-        _, _exc_str = self.errors[-1]
+        _exc_str = self.errors[-1][1]
         output = self.complete_output()
         self.result.append((2, test, output, _exc_str))
         if self.verbosity > 1:
@@ -511,7 +508,7 @@ class _TestResult(TestResult):
     def addFailure(self, test, err):
         self.failure_count += 1
         TestResult.addFailure(self, test, err)
-        _, _exc_str = self.failures[-1]
+        _exc_str = self.failures[-1][1]
         output = self.complete_output()
         self.result.append((1, test, output, _exc_str))
         if self.verbosity > 1:
@@ -537,14 +534,14 @@ class HTMLTestRunner(Template_mixin):
         else:
             self.description = description
 
-        self.startTime = datetime.datetime.now()
+        self.startTime = datetime.now().replace(microsecond=0)
 
 
     def run(self, test):
         "Run the given test case or test suite."
         result = _TestResult(self.verbosity)
         test(result)
-        self.stopTime = datetime.datetime.now()
+        self.stopTime = datetime.now().replace(microsecond=0)
         self.generateReport(test, result)
         print('Time Elapsed: {}'.format((self.stopTime-self.startTime)), file=sys.stderr)
         return result
@@ -570,7 +567,7 @@ class HTMLTestRunner(Template_mixin):
         Return report attributes as a list of (name, value).
         Override this to add custom attributes.
         """
-        startTime = str(self.startTime)[:19]
+        startTime = str(self.startTime)
         duration = str(self.stopTime - self.startTime)
         status = []
         if result.success_count: status.append('Pass %s'    % result.success_count)
@@ -719,7 +716,7 @@ class HTMLTestRunner(Template_mixin):
 # Note: Reuse unittest.TestProgram to launch test. In the future we may
 # build our own launcher to support more specific command line
 # parameters like test title, CSS, etc.
-class TestProgram(unittest.TestProgram):
+class _TestProgram(TestProgram):
     """
     A variation of the unittest.TestProgram. Please refer to the base
     class for command line parameters.
@@ -730,9 +727,9 @@ class TestProgram(unittest.TestProgram):
         # we have to instantiate HTMLTestRunner before we know self.verbosity.
         if self.testRunner is None:
             self.testRunner = HTMLTestRunner(verbosity=self.verbosity)
-        unittest.TestProgram.runTests(self)
+        TestProgram.runTests(self)
 
-main = TestProgram
+main = _TestProgram
 
 ##############################################################################
 # Executing this module from the command line
