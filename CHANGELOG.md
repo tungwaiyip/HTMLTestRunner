@@ -17,3 +17,6 @@ This project adheres to [Semantic Versioning](http://semver.org/) and http://kee
 - Remove string slice and use a datetime function instead.
 - Now compatible with python 3.5.2
 - Added Contributor Dark-Passenger to Readme
+- 
+### Added
+- Added support for skip tests.
