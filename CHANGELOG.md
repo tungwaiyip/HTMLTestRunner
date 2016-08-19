@@ -11,7 +11,7 @@ This project adheres to [Semantic Versioning](http://semver.org/) and http://kee
 - Updated README to reflect current state of project
 - Upgraded to support Python 3.4.3
 
-### Changed
+### Changed v1.0.1
 - Imported select functions only rather than the entire module.
 - remove unused variables.
 - Remove string slice and use a datetime function instead.
