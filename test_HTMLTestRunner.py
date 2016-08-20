@@ -29,6 +29,10 @@ class TestHTMLTestRunner(unittest.TestCase):
         output1="".join(self.byte_output.split())
         output2="".join(SampleTestPass.EXPECTED_RESULT.split())
         self.assertGreater(output1.find(output2),0)
+    
+    @unittest.skip("Test Skipping")
+    def test_SampleTestSkip(self):
+        self.fail("This error should never be displayed")
         
     def test_SampleTestFail(self):
         output1="".join(self.byte_output.split())
