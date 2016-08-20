@@ -6,17 +6,20 @@ This project adheres to [Semantic Versioning](http://semver.org/) and http://kee
 ### Added
 - CHANGELOG.md from @dash0002
 
+## [1.0.0]
 ### Changed
 - Moved license content from python file to LICENSE
 - Updated README to reflect current state of project
 - Upgraded to support Python 3.4.3
 
-### Changed v1.0.1
+## [1.0.1]
+### Changed
 - Imported select functions only rather than the entire module.
 - remove unused variables.
 - Remove string slice and use a datetime function instead.
 - Now compatible with python 3.5.2
 - Added Contributor Dark-Passenger to Readme
-- 
+
+## [1.0.2]
 ### Added
 - Added support for skip tests.
