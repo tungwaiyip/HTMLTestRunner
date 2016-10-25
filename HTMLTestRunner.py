@@ -1,4 +1,4 @@
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 from datetime import datetime
 from io import StringIO
@@ -92,6 +92,7 @@ class Template_mixin(object):
     0: 'pass',
     1: 'fail',
     2: 'error',
+    3: 'skip',
     }
 
     DEFAULT_TITLE = 'Unit Test Report'
@@ -293,8 +294,10 @@ a.popup_link:hover {
 .passClass  { background-color: #6c6; }
 .failClass  { background-color: #c60; }
 .errorClass { background-color: #c00; }
+.skipClass  { background-color: #ff0; }
 .passCase   { color: #6c6; }
 .failCase   { color: #c60; font-weight: bold; }
+.skipCase   { color: #ff0; font-weight: bold; }
 .errorCase  { color: #c00; font-weight: bold; }
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
@@ -349,6 +352,7 @@ a.popup_link:hover {
     <td>Test Group/Test case</td>
     <td>Count</td>
     <td>Pass</td>
+    <td>Skip</td>
     <td>Fail</td>
     <td>Error</td>
     <td>View</td>
@@ -358,6 +362,7 @@ a.popup_link:hover {
     <td>Total</td>
     <td>%(count)s</td>
     <td>%(Pass)s</td>
+    <td>%(skip)s</td>
     <td>%(fail)s</td>
     <td>%(error)s</td>
     <td>&nbsp;</td>
@@ -370,6 +375,7 @@ a.popup_link:hover {
     <td>%(desc)s</td>
     <td>%(count)s</td>
     <td>%(Pass)s</td>
+    <td>%(skip)s</td>
     <td>%(fail)s</td>
     <td>%(error)s</td>
     <td><a href="javascript:showClassDetail('%(cid)s',%(count)s)">Detail</a></td>
@@ -435,6 +441,7 @@ class _TestResult(TestResult):
         self.stdout0 = None
         self.stderr0 = None
         self.success_count = 0
+        self.skip_count = 0
         self.failure_count = 0
         self.error_count = 0
         self.verbosity = verbosity
@@ -518,6 +525,19 @@ class _TestResult(TestResult):
         else:
             sys.stderr.write('F')
 
+    def addSkip(self, test, err):
+        self.skip_count += 1
+        TestResult.addSkip(self, test, err)
+        _exc_str = self.skipped[-1][1]
+        output = self.complete_output()
+        self.result.append((3, test, output, _exc_str))
+        if self.verbosity > 1:
+            sys.stderr.write('S  ')
+            sys.stderr.write(str(test))
+            sys.stderr.write('\n')
+        else:
+            sys.stderr.write('S')
+
 
 class HTMLTestRunner(Template_mixin):
     """
@@ -571,6 +591,7 @@ class HTMLTestRunner(Template_mixin):
         duration = str(self.stopTime - self.startTime)
         status = []
         if result.success_count: status.append('Pass %s'    % result.success_count)
+        if result.skip_count:    status.append('Skip %s'    % result.skip_count   )
         if result.failure_count: status.append('Failure %s' % result.failure_count)
         if result.error_count:   status.append('Error %s'   % result.error_count  )
         if status:
@@ -627,11 +648,12 @@ class HTMLTestRunner(Template_mixin):
         sortedResult = self.sortResult(result.result)
         for cid, (cls, cls_results) in enumerate(sortedResult):
             # subtotal for a class
-            np = nf = ne = 0
+            np = ns = nf = ne = 0
             for n,t,o,e in cls_results:
                 if n == 0: np += 1
                 elif n == 1: nf += 1
-                else: ne += 1
+                elif n == 2: ne += 1
+                elif n == 3: ns += 1
 
             # format class description
             if cls.__module__ == "__main__":
@@ -642,9 +664,9 @@ class HTMLTestRunner(Template_mixin):
             desc = doc and '%s: %s' % (name, doc) or name
 
             row = self.REPORT_CLASS_TMPL % dict(
-                style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
+                style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or ns > 0 and 'skipClass' or 'passClass',
                 desc = desc,
-                count = np+nf+ne,
+                count = np+ns+nf+ne,
                 Pass = np,
                 fail = nf,
                 error = ne,
@@ -657,8 +679,9 @@ class HTMLTestRunner(Template_mixin):
 
         report = self.REPORT_TMPL % dict(
             test_list = ''.join(rows),
-            count = str(result.success_count+result.failure_count+result.error_count),
+            count = str(result.success_count+result.failure_count+result.error_count+result.skip_count),
             Pass = str(result.success_count),
+            skip = str(result.skip_count),
             fail = str(result.failure_count),
             error = str(result.error_count),
         )
