@@ -1,110 +1,16 @@
-"""
-A TestRunner for use with the Python unit testing framework. It
-generates a HTML report to show the result at a glance.
+__version__ = "1.0.2"
 
-The simplest way to use this is to invoke its main method. E.g.
-
-    import unittest
-    import HTMLTestRunner
-
-    ... define your tests ...
-
-    if __name__ == '__main__':
-        HTMLTestRunner.main()
-
-
-For more customization options, instantiates a HTMLTestRunner object.
-HTMLTestRunner is a counterpart to unittest's TextTestRunner. E.g.
-
-    # output to a file
-    fp = file('my_report.html', 'wb')
-    runner = HTMLTestRunner.HTMLTestRunner(
-                stream=fp,
-                title='My unit test',
-                description='This demonstrates the report output by HTMLTestRunner.'
-                )
-
-    # Use an external stylesheet.
-    # See the Template_mixin class for more customizable options
-    runner.STYLESHEET_TMPL = '<link rel="stylesheet" href="my_stylesheet.css" type="text/css">'
-
-    # run the test
-    runner.run(my_test_suite)
-
-
-------------------------------------------------------------------------
-Copyright (c) 2004-2007, Wai Yip Tung
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-* Redistributions of source code must retain the above copyright notice,
-  this list of conditions and the following disclaimer.
-* Redistributions in binary form must reproduce the above copyright
-  notice, this list of conditions and the following disclaimer in the
-  documentation and/or other materials provided with the distribution.
-* Neither the name Wai Yip Tung nor the names of its contributors may be
-  used to endorse or promote products derived from this software without
-  specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
-OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""
-
-# URL: http://tungwaiyip.info/software/HTMLTestRunner.html
-
-__author__ = "Wai Yip Tung"
-__version__ = "0.8.3"
-
-
-"""
-Change History
-
-Version 0.8.3
-* Prevent crash on class or module-level exceptions (Darren Wurf).
-
-Version 0.8.2
-* Show output inline instead of popup window (Viorel Lupu).
-
-Version in 0.8.1
-* Validated XHTML (Wolfgang Borgert).
-* Added description of test classes and test cases.
-
-Version in 0.8.0
-* Define Template_mixin class for customization.
-* Workaround a IE 6 bug that it does not treat <script> block as CDATA.
-
-Version in 0.7.1
-* Back port to Python 2.3 (Frank Horowitz).
-* Fix missing scroll bars in detail log (Podi).
-"""
-
-# TODO: color stderr
-# TODO: simplify javascript using ,ore than 1 class in the class attribute?
-
-import datetime
-import StringIO
-import sys
-import time
-import unittest
+from datetime import datetime
+from io import StringIO
+from unittest import TestResult, TestProgram
 from xml.sax import saxutils
+import sys
 
 
 # ------------------------------------------------------------------------
 # The redirectors below are used to capture output during testing. Output
-# sent to sys.stdout and sys.stderr are automatically captured. However
-# in some cases sys.stdout is already cached before HTMLTestRunner is
+# sent to stdout and stderr are automatically captured. However
+# in some cases stdout is already cached before HTMLTestRunner is
 # invoked (e.g. calling logging.basicConfig). In order to capture those
 # output, use the redirectors for the cached stream.
 #
@@ -114,7 +20,7 @@ from xml.sax import saxutils
 
 def to_unicode(s):
     try:
-        return unicode(s)
+        return str(s)
     except UnicodeDecodeError:
         # s is non ascii byte string
         return s.decode('unicode_escape')
@@ -186,6 +92,7 @@ class Template_mixin(object):
     0: 'pass',
     1: 'fail',
     2: 'error',
+    3: 'skip',
     }
 
     DEFAULT_TITLE = 'Unit Test Report'
@@ -387,8 +294,10 @@ a.popup_link:hover {
 .passClass  { background-color: #6c6; }
 .failClass  { background-color: #c60; }
 .errorClass { background-color: #c00; }
+.skipClass  { background-color: #ff0; }
 .passCase   { color: #6c6; }
 .failCase   { color: #c60; font-weight: bold; }
+.skipCase   { color: #ff0; font-weight: bold; }
 .errorCase  { color: #c00; font-weight: bold; }
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
@@ -443,6 +352,7 @@ a.popup_link:hover {
     <td>Test Group/Test case</td>
     <td>Count</td>
     <td>Pass</td>
+    <td>Skip</td>
     <td>Fail</td>
     <td>Error</td>
     <td>View</td>
@@ -452,6 +362,7 @@ a.popup_link:hover {
     <td>Total</td>
     <td>%(count)s</td>
     <td>%(Pass)s</td>
+    <td>%(skip)s</td>
     <td>%(fail)s</td>
     <td>%(error)s</td>
     <td>&nbsp;</td>
@@ -464,6 +375,7 @@ a.popup_link:hover {
     <td>%(desc)s</td>
     <td>%(count)s</td>
     <td>%(Pass)s</td>
+    <td>%(skip)s</td>
     <td>%(fail)s</td>
     <td>%(error)s</td>
     <td><a href="javascript:showClassDetail('%(cid)s',%(count)s)">Detail</a></td>
@@ -519,18 +431,17 @@ a.popup_link:hover {
 # -------------------- The end of the Template class -------------------
 
 
-TestResult = unittest.TestResult
-
 class _TestResult(TestResult):
     # note: _TestResult is a pure representation of results.
     # It lacks the output and reporting ability compares to unittest._TextTestResult.
 
     def __init__(self, verbosity=1):
         TestResult.__init__(self)
-        self.outputBuffer = StringIO.StringIO()
+        self.outputBuffer = StringIO()
         self.stdout0 = None
         self.stderr0 = None
         self.success_count = 0
+        self.skip_count = 0
         self.failure_count = 0
         self.error_count = 0
         self.verbosity = verbosity
@@ -591,7 +502,7 @@ class _TestResult(TestResult):
     def addError(self, test, err):
         self.error_count += 1
         TestResult.addError(self, test, err)
-        _, _exc_str = self.errors[-1]
+        _exc_str = self.errors[-1][1]
         output = self.complete_output()
         self.result.append((2, test, output, _exc_str))
         if self.verbosity > 1:
@@ -604,7 +515,7 @@ class _TestResult(TestResult):
     def addFailure(self, test, err):
         self.failure_count += 1
         TestResult.addFailure(self, test, err)
-        _, _exc_str = self.failures[-1]
+        _exc_str = self.failures[-1][1]
         output = self.complete_output()
         self.result.append((1, test, output, _exc_str))
         if self.verbosity > 1:
@@ -613,6 +524,19 @@ class _TestResult(TestResult):
             sys.stderr.write('\n')
         else:
             sys.stderr.write('F')
+
+    def addSkip(self, test, err):
+        self.skip_count += 1
+        TestResult.addSkip(self, test, err)
+        _exc_str = self.skipped[-1][1]
+        output = self.complete_output()
+        self.result.append((3, test, output, _exc_str))
+        if self.verbosity > 1:
+            sys.stderr.write('S  ')
+            sys.stderr.write(str(test))
+            sys.stderr.write('\n')
+        else:
+            sys.stderr.write('S')
 
 
 class HTMLTestRunner(Template_mixin):
@@ -630,16 +554,16 @@ class HTMLTestRunner(Template_mixin):
         else:
             self.description = description
 
-        self.startTime = datetime.datetime.now()
+        self.startTime = datetime.now().replace(microsecond=0)
 
 
     def run(self, test):
         "Run the given test case or test suite."
         result = _TestResult(self.verbosity)
         test(result)
-        self.stopTime = datetime.datetime.now()
+        self.stopTime = datetime.now().replace(microsecond=0)
         self.generateReport(test, result)
-        print >>sys.stderr, '\nTime Elapsed: %s' % (self.stopTime-self.startTime)
+        print('Time Elapsed: {}'.format((self.stopTime-self.startTime)), file=sys.stderr)
         return result
 
 
@@ -650,7 +574,7 @@ class HTMLTestRunner(Template_mixin):
         classes = []
         for n,t,o,e in result_list:
             cls = t.__class__
-            if not rmap.has_key(cls):
+            if not cls in rmap:
                 rmap[cls] = []
                 classes.append(cls)
             rmap[cls].append((n,t,o,e))
@@ -663,10 +587,11 @@ class HTMLTestRunner(Template_mixin):
         Return report attributes as a list of (name, value).
         Override this to add custom attributes.
         """
-        startTime = str(self.startTime)[:19]
+        startTime = str(self.startTime)
         duration = str(self.stopTime - self.startTime)
         status = []
         if result.success_count: status.append('Pass %s'    % result.success_count)
+        if result.skip_count:    status.append('Skip %s'    % result.skip_count   )
         if result.failure_count: status.append('Failure %s' % result.failure_count)
         if result.error_count:   status.append('Error %s'   % result.error_count  )
         if status:
@@ -695,7 +620,7 @@ class HTMLTestRunner(Template_mixin):
             report = report,
             ending = ending,
         )
-        self.stream.write(output.encode('utf8'))
+        self.stream.write(output)
 
 
     def _generate_stylesheet(self):
@@ -723,11 +648,12 @@ class HTMLTestRunner(Template_mixin):
         sortedResult = self.sortResult(result.result)
         for cid, (cls, cls_results) in enumerate(sortedResult):
             # subtotal for a class
-            np = nf = ne = 0
+            np = ns = nf = ne = 0
             for n,t,o,e in cls_results:
                 if n == 0: np += 1
                 elif n == 1: nf += 1
-                else: ne += 1
+                elif n == 2: ne += 1
+                elif n == 3: ns += 1
 
             # format class description
             if cls.__module__ == "__main__":
@@ -738,9 +664,9 @@ class HTMLTestRunner(Template_mixin):
             desc = doc and '%s: %s' % (name, doc) or name
 
             row = self.REPORT_CLASS_TMPL % dict(
-                style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or 'passClass',
+                style = ne > 0 and 'errorClass' or nf > 0 and 'failClass' or ns > 0 and 'skipClass' or 'passClass',
                 desc = desc,
-                count = np+nf+ne,
+                count = np+ns+nf+ne,
                 Pass = np,
                 fail = nf,
                 error = ne,
@@ -753,8 +679,9 @@ class HTMLTestRunner(Template_mixin):
 
         report = self.REPORT_TMPL % dict(
             test_list = ''.join(rows),
-            count = str(result.success_count+result.failure_count+result.error_count),
+            count = str(result.success_count+result.failure_count+result.error_count+result.skip_count),
             Pass = str(result.success_count),
+            skip = str(result.skip_count),
             fail = str(result.failure_count),
             error = str(result.error_count),
         )
@@ -774,13 +701,13 @@ class HTMLTestRunner(Template_mixin):
         if isinstance(o,str):
             # TODO: some problem with 'string_escape': it escape \n and mess up formating
             # uo = unicode(o.encode('string_escape'))
-            uo = o.decode('latin-1')
+            uo = bytes(o, 'utf-8').decode('latin-1')
         else:
             uo = o
         if isinstance(e,str):
             # TODO: some problem with 'string_escape': it escape \n and mess up formating
             # ue = unicode(e.encode('string_escape'))
-            ue = e.decode('latin-1')
+            ue = bytes(e, 'utf-8').decode('latin-1')
         else:
             ue = e
 
@@ -812,7 +739,7 @@ class HTMLTestRunner(Template_mixin):
 # Note: Reuse unittest.TestProgram to launch test. In the future we may
 # build our own launcher to support more specific command line
 # parameters like test title, CSS, etc.
-class TestProgram(unittest.TestProgram):
+class _TestProgram(TestProgram):
     """
     A variation of the unittest.TestProgram. Please refer to the base
     class for command line parameters.
@@ -823,9 +750,9 @@ class TestProgram(unittest.TestProgram):
         # we have to instantiate HTMLTestRunner before we know self.verbosity.
         if self.testRunner is None:
             self.testRunner = HTMLTestRunner(verbosity=self.verbosity)
-        unittest.TestProgram.runTests(self)
+        TestProgram.runTests(self)
 
-main = TestProgram
+main = _TestProgram
 
 ##############################################################################
 # Executing this module from the command line
