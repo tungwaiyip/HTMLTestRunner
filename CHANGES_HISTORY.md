@@ -1,19 +1,30 @@
-Change History
+# Change History
 
-Version 0.8.3
-* Prevent crash on class or module-level exceptions (Darren Wurf).
+## HTMLTestRunner2
 
-Version 0.8.2
-* Show output inline instead of popup window (Viorel Lupu).
+- Version 0.0.1
+  - Adds the Skipped status
 
-Version in 0.8.1
-* Validated XHTML (Wolfgang Borgert).
-* Added description of test classes and test cases.
+## HTMLTestRunner
 
-Version in 0.8.0
-* Define Template_mixin class for customization.
-* Workaround a IE 6 bug that it does not treat <script> block as CDATA.
+- Version 0.8.3
+  - Prevent crash on class or module-level exceptions (Darren Wurf).
 
-Version in 0.7.1
-* Back port to Python 2.3 (Frank Horowitz).
-* Fix missing scroll bars in detail log (Podi).
+
+- Version 0.8.2
+  - Show output inline instead of popup window (Viorel Lupu).
+
+
+- Version in 0.8.1
+  - Validated XHTML (Wolfgang Borgert).
+  - Added description of test classes and test cases.
+
+
+- Version in 0.8.0
+  - Define Template_mixin class for customization.
+  - Workaround a IE 6 bug that it does not treat <script> block as CDATA.
+
+
+- Version in 0.7.1
+  - Back port to Python 2.3 (Frank Horowitz).
+  - Fix missing scroll bars in detail log (Podi).
