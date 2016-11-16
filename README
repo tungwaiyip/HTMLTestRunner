@@ -36,4 +36,6 @@ HTMLTestRunner is a counterpart to unittest's TextTestRunner. E.g.
     # run the test
     runner.run(my_test_suite)
 
-# URL: http://tungwaiyip.info/software/HTMLTestRunner.html
+# URL: https://lucrib.github.io/HTMLTestRunner2
+
+![A sample of the report](https://raw.githubusercontent.com/lucrib/HTMLTestRunner2/master/sample.png)
