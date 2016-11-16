@@ -37,18 +37,22 @@ class SkipClassTestCase(unittest.TestCase):
         pass
 
 if __name__ == '__main__':
+    # Create the report file
     html_report = open('sample_test_report.html', 'w')
+    # Create the runner and set the file as output and higher verbosity
     runner = HTMLTestRunner.HTMLTestRunner(stream=html_report, verbosity=2)
-
-    tests = [ErrorTestCase, FailTestCase, PassTestCase,
-             SkipBeforeTestMethodTestCase, SkipClassTestCase,
-             SkipInsideTestMethodTestCase]
-
+    # Create a test list
+    tests = [
+        ErrorTestCase, FailTestCase, PassTestCase, SkipBeforeTestMethodTestCase, SkipClassTestCase,
+        SkipInsideTestMethodTestCase
+    ]
+    # Load test cases
     loader = unittest.TestLoader()
-    t_list = []
-    for t in tests:
-        cases = loader.loadTestsFromTestCase(t)
-        t_list.append(cases)
-    suite = unittest.TestSuite(t_list)
-
+    # Create a SuiteCase
+    test_list = []
+    for test in tests:
+        cases = loader.loadTestsFromTestCase(test)
+        test_list.append(cases)
+    suite = unittest.TestSuite(test_list)
+    # Run the suite
     runner.run(suite)
