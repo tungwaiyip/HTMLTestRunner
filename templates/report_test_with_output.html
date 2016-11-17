@@ -1,0 +1,22 @@
+<tr id='%(tid)s' class='%(Class)s'>
+    <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
+    <td colspan='6' align='center'>
+
+    <!--css div popup start-->
+    <a class="popup_link"
+        onfocus='this.blur();' href="javascript:showTestDetail('div_%(tid)s')">
+        %(status)s</a>
+
+    <div id='div_%(tid)s' class="popup_window">
+        <div class='close_button'>
+        <a onfocus='this.blur();'
+        onclick="document.getElementById('div_%(tid)s').style.display = 'none'">
+           [x]</a>
+        </div>
+        <pre>
+        %(script)s
+        </pre>
+    </div>
+    <!--css div popup end-->
+    </td>
+</tr>

@@ -1,0 +1,35 @@
+<p id='show_detail_line'>Show
+    <a href='javascript:showCase(0)'>Summary</a>
+    <a href='javascript:showCase(1)'>Failed</a>
+    <a href='javascript:showCase(3)'>Skipped</a>
+    <a href='javascript:showCase(2)'>All</a>
+</p>
+<table id='result_table'>
+    <colgroup>
+        <col align='left'/>
+        <col align='center'/>
+        <col align='center'/>
+        <col align='center'/>
+        <col align='center'/>
+        <col align='center'/>
+    </colgroup>
+    <tr id='header_row'>
+        <td>Test Group/Test case</td>
+        <td align='center'>Count</td>
+        <td align='center'>Pass</td>
+        <td align='center'>Fail</td>
+        <td align='center'>Error</td>
+        <td align='center'>Skip</td>
+        <td align='center'>View</td>
+    </tr>
+    %(test_list)s
+    <tr id='total_row'>
+        <td>Total</td>
+        <td align='center'>%(count)s</td>
+        <td align='center'>%(Pass)s</td>
+        <td align='center'>%(fail)s</td>
+        <td align='center'>%(error)s</td>
+        <td align='center'>%(skip)s</td>
+        <td align='center'>&nbsp;</td>
+    </tr>
+</table>

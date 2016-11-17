@@ -1,5 +1,5 @@
-import datetime
 import StringIO
+import datetime
 import sys
 import unittest
 from xml.sax import saxutils
@@ -12,17 +12,17 @@ __version__ = "0.8.3"
 # TODO: simplify javascript using ,ore than 1 class in the class attribute?
 
 
-# ---------------------------------------------------------------------------- #
-# The redirectors below are used to capture output during testing. Output
-# sent to sys.stdout and sys.stderr are automatically captured. However
-# in some cases sys.stdout is already cached before HTMLTestRunner is
-# invoked (e.g. calling logging.basicConfig). In order to capture those
-# output, use the redirectors for the cached stream.
-#
+# ------------------------------------------------------------------- #
+# The redirectors below are used to capture output during testing.
+# Output sent to sys.stdout and sys.stderr are automatically captured.
+# However in some cases sys.stdout is already cached before
+# HTMLTestRunner is invoked (e.g. calling logging.basicConfig).
+# In order to capture those output, use the redirectors for the cached
+# stream.
 # e.g.
 #   >>> logging.basicConfig(stream=HTMLTestRunner.stdout_redirector)
 #   >>>
-# ---------------------------------------------------------------------------- #
+# ------------------------------------------------------------------- #
 
 
 def to_unicode(s):
@@ -101,370 +101,66 @@ class TemplateMixin(object):
         3: 'SKIP',
     }
 
-    DEFAULT_TITLE = 'Unit Test Report'
+    DEFAULT_TITLE = 'Test Report'
     DEFAULT_DESCRIPTION = ''
 
-# ---------------------------------------------------------------------------- #
-# HTML Template
-# ---------------------------------------------------------------------------- #
+    # ------------------------------------------------------------------- #
+    # HTML Template
+    # ------------------------------------------------------------------- #
+
     # variables: (title, generator, stylesheet, heading, report, ending)
-    HTML_TMPL = r"""
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>%(title)s</title>
-    <meta name="generator" content="%(generator)s"/>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    %(stylesheet)s
-</head>
-<body>
-<script language="javascript" type="text/javascript">
-<!--
+    HTML_TEMPLATE = open('templates/report.html', 'r').read().encode('utf-8')
 
-output_list = Array();
+    # ------------------------------------------------------------------- #
+    # Stylesheet
+    # ------------------------------------------------------------------- #
+    # alternatively use a <link> for external style sheet, e.g.
+    #   <link rel="stylesheet" href="$url" type="text/css">
+    STYLESHEET_TEMPLATE = open('templates/stylesheet.html', 'r').read() \
+        .encode('utf-8')
 
-/* Level - 0: Summary; 1: Failed; 2: All; 3: Skipped */
-function showCase(level) {
-    trs = document.getElementsByTagName("tr");
-    for (var i = 0; i < trs.length; i++) {
-        tr = trs[i];
-        id = tr.id;
-        if (id.substr(0,2) == 'ft') {
-            if (level < 1) {
-                tr.className = 'hiddenRow';
-            }
-            else {
-                tr.className = '';
-            }
-        }
-        if (id.substr(0,2) == 'pt') {
-            if (level > 1) {
-                tr.className = '';
-            }
-            else {
-                tr.className = 'hiddenRow';
-            }
-        }
-    }
-}
-
-
-function showClassDetail(cid, count) {
-    var id_list = Array(count);
-    var toHide = 1;
-    for (var i = 0; i < count; i++) {
-        tid0 = 't' + cid.substr(1) + '.' + (i+1);
-        tid = 'f' + tid0;
-        tr = document.getElementById(tid);
-        if (!tr) {
-            tid = 'p' + tid0;
-            tr = document.getElementById(tid);
-        }
-        id_list[i] = tid;
-        if (tr.className) {
-            toHide = 0;
-        }
-    }
-    for (var i = 0; i < count; i++) {
-        tid = id_list[i];
-        if (toHide) {
-            document.getElementById('div_'+tid).style.display = 'none'
-            document.getElementById(tid).className = 'hiddenRow';
-        }
-        else {
-            document.getElementById(tid).className = '';
-        }
-    }
-}
-
-
-function showTestDetail(div_id){
-    var details_div = document.getElementById(div_id)
-    var displayState = details_div.style.display
-    // alert(displayState)
-    if (displayState != 'block' ) {
-        displayState = 'block'
-        details_div.style.display = 'block'
-    }
-    else {
-        details_div.style.display = 'none'
-    }
-}
-
-
-function html_escape(s) {
-    s = s.replace(/&/g,'&amp;');
-    s = s.replace(/</g,'&lt;');
-    s = s.replace(/>/g,'&gt;');
-    return s;
-}
-
-/* obsoleted by detail in <div>
-function showOutput(id, name) {
-    var w = window.open("", //url
-                    name,
-                    "resizable,scrollbars,status,width=800,height=450");
-    d = w.document;
-    d.write("<pre>");
-    d.write(html_escape(output_list[id]));
-    d.write("\n");
-    d.write("<a href='javascript:window.close()'>close</a>\n");
-    d.write("</pre>\n");
-    d.close();
-}
-*/
---></script>
-
-%(heading)s
-%(report)s
-%(ending)s
-
-</body>
-</html>"""
-
-# ---------------------------------------------------------------------------- #
-# Stylesheet
-# ---------------------------------------------------------------------------- #
-# alternatively use a <link> for external style sheet, e.g.
-#   <link rel="stylesheet" href="$url" type="text/css">
-    STYLESHEET_TMPL = r"""
-<style type="text/css" media="screen">
-body {
-    font-family: verdana, arial, helvetica, sans-serif;
-    font-size: 80%;
-}
-
-table {
-    font-size: 100%;
-}
-
-pre { }
-
-/* -- heading --------------------------------------------------------------- */
-
-h1 {
-    font-size: 16pt;
-    color: gray;
-}
-
-.heading {
-    margin-top: 0ex;
-    margin-bottom: 1ex;
-}
-
-.heading .attribute {
-    margin-top: 1ex;
-    margin-bottom: 0;
-}
-
-.heading .description {
-    margin-top: 4ex;
-    margin-bottom: 6ex;
-}
-
-/* -- css div popup --------------------------------------------------------- */
-
-a.popup_link {
-}
-
-a.popup_link:hover {
-    color: red;
-}
-
-.popup_window {
-    display: none;
-    position: relative;
-    width: 95%;
-    height: 95%;
-    margin: 10px 0 15px 0;
-    /*border: solid #627173 1px; */
-    padding: 4px;
-    background-color: #CCC;
-    font-family: "Lucida Console", "Courier New", Courier, monospace;
-    text-align: left;
-    font-size: 8pt;
-
-    word-wrap: break-word;
-
-}
-
-/* -- report ---------------------------------------------------------------- */
-
-#show_detail_line {
-    margin-top: 3ex;
-    margin-bottom: 1ex;
-}
-
-#result_table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid black;
-}
-
-#header_row {
-    font-weight: bold;
-    color: white;
-    background-color: #777;
-}
-
-#result_table td {
-    border: 1px solid black;
-    border: 1px solid black;
-    padding: 2px;
-    width: auto;
-}
-
-#total_row {
-    font-weight: bold;
-    background-color: #777;
-    color: white;
-}
-
-.passClass  { background-color: #0F0; font-weight: bold;}
-.failClass  { background-color: #F00; font-weight: bold;}
-.errorClass { background-color: #A20; font-weight: bold;}
-.skipClass  { background-color: #FF0; font-weight: bold;}
-
-.passCase   { color: #000; }
-.failCase   { color: #000; }
-.errorCase  { color: #000; }
-.skipCase   { color: #000; }
-
-.hiddenRow  { display: none; }
-.testcase   { margin-left: 2em; }
-
-.close_button {
-    text-align: right;
-    color:red;
-    cursor:pointer;
-    font-weight: bold;
-}
-
-/* -- ending ---------------------------------------------------------------- */
-
-#ending { }
-
-</style>"""
-
-# ---------------------------------------------------------------------------- #
-# Heading
-# ---------------------------------------------------------------------------- #
+    # ------------------------------------------------------------------- #
+    # Heading
+    # ------------------------------------------------------------------- #
     # variables: (title, parameters, description)
-    HEADING_TMPL = r"""
-<div class='heading'>
-    <h1>%(title)s</h1>
-    %(parameters)s
-    <p class='description'>%(description)s</p>
-</div>"""
+    HEADING_TEMPLATE = open('templates/heading.html', 'r').read() \
+        .encode('utf-8')
 
     # variables: (name, value)
-    HEADING_ATTRIBUTE_TMPL = r"""
-<p class='attribute'><strong>%(name)s:</strong> %(value)s</p>"""
+    HEADING_ATTRIBUTE_TEMPLATE = open('templates/heading_attribute.html', 'r')\
+        .read().encode('utf-8')
 
-
-# ---------------------------------------------------------------------------- #
-# Report
-# ---------------------------------------------------------------------------- #
+    # ------------------------------------------------------------------- #
+    # Report
+    # ------------------------------------------------------------------- #
     # variables: (test_list, count, Pass, fail, error, skip)
-    REPORT_TMPL = r"""
-<p id='show_detail_line'>Show
-<a href='javascript:showCase(0)'>Summary</a>
-<a href='javascript:showCase(1)'>Failed</a>
-<a href='javascript:showCase(3)'>Skipped</a>
-<a href='javascript:showCase(2)'>All</a>
-</p>
-<table id='result_table'>
-<colgroup>
-<col align='left' />
-<col align='center' />
-<col align='center' />
-<col align='center' />
-<col align='center' />
-<col align='center' />
-</colgroup>
-<tr id='header_row'>
-    <td>Test Group/Test case</td>
-    <td align='center' >Count</td>
-    <td align='center' >Pass</td>
-    <td align='center' >Fail</td>
-    <td align='center' >Error</td>
-    <td align='center' >Skip</td>
-    <td align='center' >View</td>
-</tr>
-%(test_list)s
-<tr id='total_row'>
-    <td>Total</td>
-    <td align='center' >%(count)s</td>
-    <td align='center' >%(Pass)s</td>
-    <td align='center' >%(fail)s</td>
-    <td align='center' >%(error)s</td>
-    <td align='center' >%(skip)s</td>
-    <td align='center' >&nbsp;</td>
-</tr>
-</table>"""
+    REPORT__TABLE_TEMPLATE = open('templates/report_table.html', 'r') \
+        .read().encode('utf-8')
 
     # variables: (style, desc, count, Pass, fail, error, cid)
-    REPORT_CLASS_TMPL = r"""
-<tr class='%(style)s'>
-    <td>%(desc)s</td>
-    <td align='center' >%(count)s</td>
-    <td align='center' >%(Pass)s</td>
-    <td align='center' >%(fail)s</td>
-    <td align='center' >%(error)s</td>
-    <td align='center' >%(skip)s</td>
-    <td align='center' >
-        <a href="javascript:showClassDetail('%(cid)s',%(count)s)">Detail</a>
-    </td>
-</tr>"""
+    REPORT_CLASS_TEMPLATE = open('templates/report_class.html', 'r').read()\
+        .encode('utf-8')
 
     # variables: (tid, Class, style, desc, status)
-    REPORT_TEST_WITH_OUTPUT_TMPL = r"""
-<tr id='%(tid)s' class='%(Class)s'>
-    <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='6' align='center'>
-
-    <!--css div popup start-->
-    <a class="popup_link"
-        onfocus='this.blur();' href="javascript:showTestDetail('div_%(tid)s')">
-        %(status)s</a>
-
-    <div id='div_%(tid)s' class="popup_window">
-        <div class='close_button'>
-        <a onfocus='this.blur();'
-        onclick="document.getElementById('div_%(tid)s').style.display = 'none'">
-           [x]</a>
-        </div>
-        <pre>
-        %(script)s
-        </pre>
-    </div>
-    <!--css div popup end-->
-    </td>
-</tr>"""
+    REPORT_TEST_WITH_OUTPUT_TMPL = \
+        open('templates/report_test_with_output.html', 'r').read()\
+        .encode('utf-8')
 
     # variables: (tid, Class, style, desc, status)
-    REPORT_TEST_NO_OUTPUT_TMPL = r"""
-<tr id='%(tid)s' class='%(Class)s'>
-    <td class='%(style)s'>
-        <div class='testcase'>%(desc)s</div>
-    </td>
-    <td colspan='6' align='center'>%(status)s</td>
-</tr>"""
+    REPORT_TEST_NO_OUTPUT_TEMPLATE = \
+        open('templates/report_test_no_output.html', 'r').read()\
+        .encode('utf-8')
 
     # variables: (id, output)
-    REPORT_TEST_OUTPUT_TMPL = r"""%(id)s: %(output)s"""
+    REPORT_TEST_OUTPUT_TEMPLATE = r"""%(id)s: %(output)s"""
 
-
-# ---------------------------------------------------------------------------- #
-# ENDING
-# ---------------------------------------------------------------------------- #
-    ENDING_TMPL = r"""<div id='ending'>&nbsp;</div>"""
+    # ------------------------------------------------------------------- #
+    # ENDING
+    # ------------------------------------------------------------------- #
+    ENDING_TEMPLATE = r"""<div id='ending'>&nbsp;</div>"""
 
 
 # -------------------- The end of the Template class -------------------
-
 
 TestResult = unittest.TestResult
 
@@ -589,7 +285,7 @@ def sort_result(result_list):
             rmap[cls] = []
             classes.append(cls)
         rmap[cls].append((n, t, o, e))
-    r = [(cls, rmap[cls]) for cls in classes]
+    r = [(clazz, rmap[clazz]) for clazz in classes]
     return r
 
 
@@ -616,8 +312,8 @@ class HTMLTestRunner(TemplateMixin):
         test(result)
         self.stopTime = datetime.datetime.now()
         self.generate_report(result)
-        print >> sys.stderr, '\nTime Elapsed: %s' % \
-                             (self.stopTime - self.startTime)
+        total_time = self.stopTime - self.startTime
+        print >> sys.stderr, '\nTime Elapsed: %s' % total_time
         return result
 
     def get_report_attributes(self, result):
@@ -653,7 +349,7 @@ class HTMLTestRunner(TemplateMixin):
         heading = self._generate_heading(report_attrs)
         report = self._generate_report(result)
         ending = self._generate_ending()
-        output = self.HTML_TMPL % dict(
+        output = self.HTML_TEMPLATE % dict(
             title=saxutils.escape(self.title),
             generator=generator,
             stylesheet=stylesheet,
@@ -664,17 +360,17 @@ class HTMLTestRunner(TemplateMixin):
         self.stream.write(output.encode('utf8'))
 
     def _generate_stylesheet(self):
-        return self.STYLESHEET_TMPL
+        return self.STYLESHEET_TEMPLATE
 
     def _generate_heading(self, report_attrs):
         attrs_list = []
         for attr_name, attr_value in report_attrs:
-            attr_line = self.HEADING_ATTRIBUTE_TMPL % dict(
+            attr_line = self.HEADING_ATTRIBUTE_TEMPLATE % dict(
                 name=saxutils.escape(attr_name),
                 value=saxutils.escape(attr_value),
             )
             attrs_list.append(attr_line)
-        heading = self.HEADING_TMPL % dict(
+        heading = self.HEADING_TEMPLATE % dict(
             title=saxutils.escape(self.title),
             parameters=''.join(attrs_list),
             description=saxutils.escape(self.description),
@@ -696,9 +392,9 @@ class HTMLTestRunner(TemplateMixin):
                     ne += 1
                 elif n == 3:
                     ns += 1
-                # else:
-                #     # ne += 1
-                #     print 'TESTING'
+                    # else:
+                    #     # ne += 1
+                    #     print 'TESTING'
 
             # format class description
             if cls.__module__ == "__main__":
@@ -713,7 +409,7 @@ class HTMLTestRunner(TemplateMixin):
                 or ns > 0 and 'skipClass' \
                 or 'passClass'
 
-            row = self.REPORT_CLASS_TMPL % dict(
+            row = self.REPORT_CLASS_TEMPLATE % dict(
                 style=s,
                 desc=desc,
                 count=np + nf + ne + ns,
@@ -731,7 +427,7 @@ class HTMLTestRunner(TemplateMixin):
             + result.failure_count \
             + result.error_count \
             + result.skip_count
-        report = self.REPORT_TMPL % dict(
+        report = self.REPORT__TABLE_TEMPLATE % dict(
             test_list=''.join(rows),
             count=str(result_sum),
             Pass=str(result.success_count),
@@ -744,7 +440,8 @@ class HTMLTestRunner(TemplateMixin):
     def _generate_report_test(self, rows, class_id, test_id, n, t, output, e):
         # e.g. 'pt1.1', 'ft1.1', etc
         has_output = bool(output or e)
-        test_id = (n == 0 and 'p' or 'f') + 't%s.%s' % (class_id+1, test_id+1)
+        test_id = (n == 0 and 'p' or 'f') + 't%s.%s' \
+                                            % (class_id + 1, test_id + 1)
         name = t.id().split('.')[-1]
         doc = t.shortDescription() or ""
         desc = doc and ('%s: %s' % (name, doc)) or name
@@ -753,7 +450,7 @@ class HTMLTestRunner(TemplateMixin):
         if has_output:
             tmpl = self.REPORT_TEST_WITH_OUTPUT_TMPL
         else:
-            tmpl = self.REPORT_TEST_NO_OUTPUT_TMPL
+            tmpl = self.REPORT_TEST_NO_OUTPUT_TEMPLATE
         # o and e should be byte string because
         # they are collected from stdout and stderr?
         if isinstance(output, str):
@@ -771,7 +468,7 @@ class HTMLTestRunner(TemplateMixin):
         else:
             ue = e
 
-        script = self.REPORT_TEST_OUTPUT_TMPL % dict(
+        script = self.REPORT_TEST_OUTPUT_TEMPLATE % dict(
             id=test_id,
             output=saxutils.escape(uo + ue),
         )
@@ -789,7 +486,7 @@ class HTMLTestRunner(TemplateMixin):
             return
 
     def _generate_ending(self):
-        return self.ENDING_TMPL
+        return self.ENDING_TEMPLATE
 
 
 ##############################################################################
