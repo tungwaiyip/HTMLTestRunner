@@ -5,7 +5,7 @@ import unittest
 from xml.sax import saxutils
 
 __author__ = "Wai Yip Tung"
-__version__ = "0.8.3"
+__version__ = "2.0.0"
 
 
 # TODO: color stderr
