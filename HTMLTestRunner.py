@@ -9,7 +9,7 @@ __version__ = "2.0.0"
 
 
 # TODO: color stderr
-# TODO: simplify javascript using ,ore than 1 class in the class attribute?
+# TODO: simplify javascript using , more than 1 class in the class attribute?
 
 
 # ------------------------------------------------------------------- #
@@ -102,7 +102,7 @@ class TemplateMixin(object):
     }
 
     DEFAULT_TITLE = 'Test Report'
-    DEFAULT_DESCRIPTION = ''
+    DEFAULT_DESCRIPTION = 'This is a simple description. And it has two phrases.'
 
     # ------------------------------------------------------------------- #
     # HTML Template
@@ -116,29 +116,29 @@ class TemplateMixin(object):
     # ------------------------------------------------------------------- #
     # alternatively use a <link> for external style sheet, e.g.
     #   <link rel="stylesheet" href="$url" type="text/css">
-    STYLESHEET_TEMPLATE = open('templates/stylesheet.html', 'r').read() \
+    STYLESHEET_TEMPLATE = open('templates/head_inserts.html', 'r').read() \
         .encode('utf-8')
 
     # ------------------------------------------------------------------- #
     # Heading
     # ------------------------------------------------------------------- #
     # variables: (title, parameters, description)
-    HEADING_TEMPLATE = open('templates/heading.html', 'r').read() \
+    HEADING_TEMPLATE = open('templates/header.html', 'r').read() \
         .encode('utf-8')
 
     # variables: (name, value)
-    HEADING_ATTRIBUTE_TEMPLATE = open('templates/heading_attribute.html', 'r')\
+    HEADING_ATTRIBUTE_TEMPLATE = open('templates/header_parameters.html', 'r')\
         .read().encode('utf-8')
 
     # ------------------------------------------------------------------- #
     # Report
     # ------------------------------------------------------------------- #
     # variables: (test_list, count, Pass, fail, error, skip)
-    REPORT__TABLE_TEMPLATE = open('templates/report_table.html', 'r') \
+    REPORT__TABLE_TEMPLATE = open('templates/result_table.html', 'r') \
         .read().encode('utf-8')
 
     # variables: (style, desc, count, Pass, fail, error, cid)
-    REPORT_CLASS_TEMPLATE = open('templates/report_class.html', 'r').read()\
+    REPORT_CLASS_TEMPLATE = open('templates/test_class.html', 'r').read()\
         .encode('utf-8')
 
     # variables: (tid, Class, style, desc, status)
@@ -157,7 +157,8 @@ class TemplateMixin(object):
     # ------------------------------------------------------------------- #
     # ENDING
     # ------------------------------------------------------------------- #
-    ENDING_TEMPLATE = r"""<div id='ending'>&nbsp;</div>"""
+    ENDING_TEMPLATE = open('templates/footer.html', 'r').read()\
+        .encode('utf-8')
 
 
 # -------------------- The end of the Template class -------------------
@@ -291,17 +292,21 @@ def sort_result(result_list):
 
 class HTMLTestRunner(TemplateMixin):
     def __init__(self, stream=sys.stdout, verbosity=1, title=None,
-                 description=None):
+                 description=None, attrs=None):
         self.stream = stream
         self.verbosity = verbosity
+
         if title is None:
             self.title = self.DEFAULT_TITLE
         else:
             self.title = title
+
         if description is None:
             self.description = self.DEFAULT_DESCRIPTION
         else:
             self.description = description
+
+        self.attributes = attrs
 
         self.startTime = datetime.datetime.now()
         self.stopTime = None
@@ -318,61 +323,77 @@ class HTMLTestRunner(TemplateMixin):
 
     def get_report_attributes(self, result):
         """
-        Return report attributes as a list of (name, value).
+        Return report attributes as a list of tuples with (name, value).
         Override this to add custom attributes.
         """
-        start_time = str(self.startTime)[:19]
+        start_time = str(self.startTime)
         duration = str(self.stopTime - self.startTime)
-        status = []
+        statuses = []
         if result.success_count:
-            status.append('Pass %s' % result.success_count)
+            statuses.append('Passed %s' % result.success_count)
         if result.skip_count:
-            status.append('Skip %s' % result.skip_count)
+            statuses.append('Skipped %s' % result.skip_count)
         if result.failure_count:
-            status.append('Failure %s' % result.failure_count)
+            statuses.append('Failed %s' % result.failure_count)
         if result.error_count:
-            status.append('Error %s' % result.error_count)
-        if status:
-            status = ', '.join(status)
+            statuses.append('Errors %s' % result.error_count)
+        if statuses:
+            statuses = ', '.join(statuses)
         else:
-            status = 'none'
-        return [
+            statuses = 'None'
+        group1 = [
             ('Start Time', start_time),
+            ('Stop Time', str(self.stopTime)),
             ('Duration', duration),
-            ('Status', status),
+            ('Status', statuses),
         ]
 
+        return group1
+
     def generate_report(self, result):
-        report_attrs = self.get_report_attributes(result)
         generator = 'HTMLTestRunner %s' % __version__
         stylesheet = self._generate_stylesheet()
-        heading = self._generate_heading(report_attrs)
+        heading = self._generate_heading(result)
         report = self._generate_report(result)
         ending = self._generate_ending()
         output = self.HTML_TEMPLATE % dict(
             title=saxutils.escape(self.title),
             generator=generator,
-            stylesheet=stylesheet,
-            heading=heading,
-            report=report,
-            ending=ending,
+            version=__version__,
+            head_inserts=stylesheet,
+            header=heading,
+            result_table=report,
+            footer=ending,
         )
         self.stream.write(output.encode('utf8'))
 
     def _generate_stylesheet(self):
         return self.STYLESHEET_TEMPLATE
 
-    def _generate_heading(self, report_attrs):
+    def _parse_attributes_group(self, group):
         attrs_list = []
-        for attr_name, attr_value in report_attrs:
+        for attr_name, attr_value in group:
             attr_line = self.HEADING_ATTRIBUTE_TEMPLATE % dict(
                 name=saxutils.escape(attr_name),
                 value=saxutils.escape(attr_value),
             )
             attrs_list.append(attr_line)
+        return attrs_list
+
+    def _generate_heading(self, result):
+        g1 = self.get_report_attributes(result)
+        g2 = self.attributes['group2']
+        g3 = self.attributes['group3']
+
+        pg1 = self._parse_attributes_group(g1)
+        pg2 = self._parse_attributes_group(g2)
+        pg3 = self._parse_attributes_group(g3)
+
         heading = self.HEADING_TEMPLATE % dict(
             title=saxutils.escape(self.title),
-            parameters=''.join(attrs_list),
+            parameters_1=''.join(pg1),
+            parameters_2=''.join(pg2),
+            parameters_3=''.join(pg3),
             description=saxutils.escape(self.description),
         )
         return heading
@@ -470,13 +491,13 @@ class HTMLTestRunner(TemplateMixin):
 
         script = self.REPORT_TEST_OUTPUT_TEMPLATE % dict(
             id=test_id,
-            output=saxutils.escape(uo + ue),
+            output=saxutils.escape(uo.strip() + ue.strip()),
         )
         row = tmpl % dict(
             tid=test_id,
             Class=(n == 0 and 'hiddenRow' or 'none'),
-            style=n == 2 and 'errorCase' or (
-                n == 1 and 'failCase' or n == 3 and 'skipCase' or 'passCase'),
+            style=n == 2 and 'bg-info' or (
+                n == 1 and 'bg-danger' or n == 3 and 'bg-warning' or 'bg-success'),
             desc=desc,
             script=script,
             status=self.STATUS[n],

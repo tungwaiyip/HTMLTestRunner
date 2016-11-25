@@ -1,0 +1,46 @@
+<div class='text-center buttons'>
+<div id='show_detail_line' class="btn-group pagination-centered" role="group" aria-label="TESTE">
+    <button type="button" class="btn btn-success" data-toggle="button" aria-pressed="false" data-placement="top"
+            title="Show only the execution summary" onclick="showCase(0)">Summary
+    </button>
+    <button type="button" class="btn btn-warning" data-toggle="button" aria-pressed="false" data-placement="top"
+            title="Show skipped test cases" onclick="showCase(3)">Skipped
+    </button>
+    <button type="button" class="btn btn-danger" data-toggle="button" aria-pressed="false" data-placement="top"
+            title="Show the filed test cases" onclick="showCase(1)">Failed
+    </button>
+    <button type="button" class="btn btn-primary" data-toggle="tooltip" aria-pressed="false" data-placement="top"
+            title="Show all test cases" onclick="showCase(2)">All
+    </button>
+</div>
+</div>
+
+<table id='result_table' class='table table-bordered table-responsive table-curved'>
+    <colgroup>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+    </colgroup>
+    <tr id='header_row' class="text-center bg-grey">
+        <td>Test Group/Test case</td>
+        <td>Count</td>
+        <td>Pass</td>
+        <td>Fail</td>
+        <td>Error</td>
+        <td>Skip</td>
+        <td>View</td>
+    </tr>
+    %(test_list)s
+    <tr id='total_row' class="text-center bg-grey">
+        <td>Total</td>
+        <td>%(count)s</td>
+        <td>%(Pass)s</td>
+        <td>%(fail)s</td>
+        <td>%(error)s</td>
+        <td>%(skip)s</td>
+        <td>&nbsp</td>
+    </tr>
+</table>

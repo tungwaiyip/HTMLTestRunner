@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Test Report</title>
+    <meta name="generator" content="HTMLTestRunner 2.0.0"/>
+    <meta name="version" content="2.0.0"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery-3.1.1.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<!-- Project CSS -->
+<link href="css/runner.css" rel="stylesheet">
+<!-- Project JS -->
+<script src="js/runner.js"></script>
+
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row report-title">
+    <h1 id='report_title' class="text-center">Test Report</h1>
+</div>
+
+<div id='header_parameters' class='row text-center report-parameters'>
+    <div class="col-xs-6 col-md-4">
+        <p class='text-justify attribute'><strong>Start Time:</strong> 2016-12-05 20:39:07.431143</p>
+<p class='text-justify attribute'><strong>Stop Time:</strong> 2016-12-05 20:39:07.432846</p>
+<p class='text-justify attribute'><strong>Duration:</strong> 0:00:00.001703</p>
+<p class='text-justify attribute'><strong>Status:</strong> Passed 1, Skipped 3, Failed 1, Errors 1</p>
+
+    </div>
+    <div class="col-xs-6 col-md-4">
+        <p class='text-justify attribute'><strong>My Project Name:</strong> Fake Project Name</p>
+<p class='text-justify attribute'><strong>Reponsible Team:</strong> Fake Team</p>
+<p class='text-justify attribute'><strong>Build Number:</strong> 42</p>
+
+    </div>
+    <div class="col-xs-6 col-md-4">
+        <p class='text-justify attribute'><strong>Produc Under Test:</strong> The Fake Product Site</p>
+<p class='text-justify attribute'><strong>Product Team:</strong> Fake Product Team</p>
+
+    </div>
+</div>
+
+<div class='report-description'>
+    <div id='report_description' class='row text-center'>This is a fake description
+    divided in two lines.</div>
+</div>
+
+    <div class='text-center buttons'>
+<div id='show_detail_line' class="btn-group pagination-centered" role="group" aria-label="TESTE">
+    <button type="button" class="btn btn-success" data-toggle="button" aria-pressed="false" data-placement="top"
+            title="Show only the execution summary" onclick="showCase(0)">Summary
+    </button>
+    <button type="button" class="btn btn-warning" data-toggle="button" aria-pressed="false" data-placement="top"
+            title="Show skipped test cases" onclick="showCase(3)">Skipped
+    </button>
+    <button type="button" class="btn btn-danger" data-toggle="button" aria-pressed="false" data-placement="top"
+            title="Show the filed test cases" onclick="showCase(1)">Failed
+    </button>
+    <button type="button" class="btn btn-primary" data-toggle="tooltip" aria-pressed="false" data-placement="top"
+            title="Show all test cases" onclick="showCase(2)">All
+    </button>
+</div>
+</div>
+
+<table id='result_table' class='table table-bordered table-responsive table-curved'>
+    <colgroup>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+    </colgroup>
+    <tr id='header_row' class="text-center bg-grey">
+        <td>Test Group/Test case</td>
+        <td>Count</td>
+        <td>Pass</td>
+        <td>Fail</td>
+        <td>Error</td>
+        <td>Skip</td>
+        <td>View</td>
+    </tr>
+    <tr class='errorClass'>
+    <td>ErrorTestCase</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">
+        <a onclick="showClassDetail('c1', 1)">Detail</a>
+    </td>
+</tr>
+<tr id='ft1.1' class='none bg-info'>
+    <td>
+        <div class='testcase'>test_error: A test that raise an exception</div>
+    </td>
+    <td colspan='6'>
+        <div class="text-center">
+            <a class="popup_link text-center" onfocus='blur()' onclick="showTestDetail('div_ft1.1')">ERROR</a>
+        </div>
+        <!--css div popup start-->
+        <div id='div_ft1.1' class="popup_window test_output">
+            <div class='close_button pull-right'>
+                <button type="button" class="close" aria-label="Close" onfocus='this.blur();'
+                        onclick="document.getElementById('div_ft1.1').style.display='none'"><span
+                        aria-hidden="true">&times;</span></button>
+                <!--<a onfocus='this.blur();' onclick="document.getElementById('div_ft1.1').style.display='none'">[x]</a>-->
+            </div>
+            <div class="text-left pull-left">
+                <pre class="text-left">ft1.1: test_errorTraceback (most recent call last):
+  File "/home/lucas/github/HTMLTestRunner2/tests.py", line 24, in test_error
+    raise Exception
+Exception</pre>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <!--css div popup end-->
+    </td>
+</tr>
+<tr class='failClass'>
+    <td>FailTestCase</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">
+        <a onclick="showClassDetail('c2', 1)">Detail</a>
+    </td>
+</tr>
+<tr id='ft2.1' class='none bg-danger'>
+    <td>
+        <div class='testcase'>test_fail: A test that fails</div>
+    </td>
+    <td colspan='6'>
+        <div class="text-center">
+            <a class="popup_link text-center" onfocus='blur()' onclick="showTestDetail('div_ft2.1')">FAIL</a>
+        </div>
+        <!--css div popup start-->
+        <div id='div_ft2.1' class="popup_window test_output">
+            <div class='close_button pull-right'>
+                <button type="button" class="close" aria-label="Close" onfocus='this.blur();'
+                        onclick="document.getElementById('div_ft2.1').style.display='none'"><span
+                        aria-hidden="true">&times;</span></button>
+                <!--<a onfocus='this.blur();' onclick="document.getElementById('div_ft2.1').style.display='none'">[x]</a>-->
+            </div>
+            <div class="text-left pull-left">
+                <pre class="text-left">ft2.1: test_failTraceback (most recent call last):
+  File "/home/lucas/github/HTMLTestRunner2/tests.py", line 17, in test_fail
+    self.assertTrue(False)
+AssertionError: False is not true</pre>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <!--css div popup end-->
+    </td>
+</tr>
+<tr class='passClass'>
+    <td>PassTestCase</td>
+    <td class="text-center">1</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">
+        <a onclick="showClassDetail('c3', 1)">Detail</a>
+    </td>
+</tr>
+<tr id='pt3.1' class='hiddenRow bg-success'>
+    <td>
+        <div class='testcase'>test_pass: A test that passes</div>
+    </td>
+    <td colspan='6'>
+        <div class="text-center">
+            <a class="popup_link text-center" onfocus='blur()' onclick="showTestDetail('div_pt3.1')">PASS</a>
+        </div>
+        <!--css div popup start-->
+        <div id='div_pt3.1' class="popup_window test_output">
+            <div class='close_button pull-right'>
+                <button type="button" class="close" aria-label="Close" onfocus='this.blur();'
+                        onclick="document.getElementById('div_pt3.1').style.display='none'"><span
+                        aria-hidden="true">&times;</span></button>
+                <!--<a onfocus='this.blur();' onclick="document.getElementById('div_pt3.1').style.display='none'">[x]</a>-->
+            </div>
+            <div class="text-left pull-left">
+                <pre class="text-left">pt3.1: test_pass</pre>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <!--css div popup end-->
+    </td>
+</tr>
+<tr class='skipClass'>
+    <td>SkipBeforeTestMethodTestCase</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a onclick="showClassDetail('c4', 1)">Detail</a>
+    </td>
+</tr>
+<tr id='ft4.1' class='none bg-warning'>
+    <td>
+        <div class='testcase'>test_skip_before_test_method</div>
+    </td>
+    <td colspan='6'>
+        <div class="text-center">
+            <a class="popup_link text-center" onfocus='blur()' onclick="showTestDetail('div_ft4.1')">SKIP</a>
+        </div>
+        <!--css div popup start-->
+        <div id='div_ft4.1' class="popup_window test_output">
+            <div class='close_button pull-right'>
+                <button type="button" class="close" aria-label="Close" onfocus='this.blur();'
+                        onclick="document.getElementById('div_ft4.1').style.display='none'"><span
+                        aria-hidden="true">&times;</span></button>
+                <!--<a onfocus='this.blur();' onclick="document.getElementById('div_ft4.1').style.display='none'">[x]</a>-->
+            </div>
+            <div class="text-left pull-left">
+                <pre class="text-left">ft4.1: Skip before test method</pre>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <!--css div popup end-->
+    </td>
+</tr>
+<tr class='skipClass'>
+    <td>SkipClassTestCase</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a onclick="showClassDetail('c5', 1)">Detail</a>
+    </td>
+</tr>
+<tr id='ft5.1' class='none bg-warning'>
+    <td>
+        <div class='testcase'>test_skip_class</div>
+    </td>
+    <td colspan='6'>
+        <div class="text-center">
+            <a class="popup_link text-center" onfocus='blur()' onclick="showTestDetail('div_ft5.1')">SKIP</a>
+        </div>
+        <!--css div popup start-->
+        <div id='div_ft5.1' class="popup_window test_output">
+            <div class='close_button pull-right'>
+                <button type="button" class="close" aria-label="Close" onfocus='this.blur();'
+                        onclick="document.getElementById('div_ft5.1').style.display='none'"><span
+                        aria-hidden="true">&times;</span></button>
+                <!--<a onfocus='this.blur();' onclick="document.getElementById('div_ft5.1').style.display='none'">[x]</a>-->
+            </div>
+            <div class="text-left pull-left">
+                <pre class="text-left">ft5.1: Skip class</pre>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <!--css div popup end-->
+    </td>
+</tr>
+<tr class='skipClass'>
+    <td>SkipInsideTestMethodTestCase</td>
+    <td class="text-center">1</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">0</td>
+    <td class="text-center">1</td>
+    <td class="text-center">
+        <a onclick="showClassDetail('c6', 1)">Detail</a>
+    </td>
+</tr>
+<tr id='ft6.1' class='none bg-warning'>
+    <td>
+        <div class='testcase'>test_skip_inside_test_method</div>
+    </td>
+    <td colspan='6'>
+        <div class="text-center">
+            <a class="popup_link text-center" onfocus='blur()' onclick="showTestDetail('div_ft6.1')">SKIP</a>
+        </div>
+        <!--css div popup start-->
+        <div id='div_ft6.1' class="popup_window test_output">
+            <div class='close_button pull-right'>
+                <button type="button" class="close" aria-label="Close" onfocus='this.blur();'
+                        onclick="document.getElementById('div_ft6.1').style.display='none'"><span
+                        aria-hidden="true">&times;</span></button>
+                <!--<a onfocus='this.blur();' onclick="document.getElementById('div_ft6.1').style.display='none'">[x]</a>-->
+            </div>
+            <div class="text-left pull-left">
+                <pre class="text-left">ft6.1: test_skip_inside_test_methodSkip inside test method</pre>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <!--css div popup end-->
+    </td>
+</tr>
+
+    <tr id='total_row' class="text-center bg-grey">
+        <td>Total</td>
+        <td>6</td>
+        <td>1</td>
+        <td>1</td>
+        <td>1</td>
+        <td>3</td>
+        <td>&nbsp</td>
+    </tr>
+</table>
+
+</div>
+
+<footer>
+    <div id='foter' class="text-center">
+    <p>Made with HTMLTestRunner2</p>
+</div>
+</footer>
+
+</body>
+
+</html>
