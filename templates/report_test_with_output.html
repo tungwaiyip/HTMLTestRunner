@@ -1,0 +1,24 @@
+<tr id='%(tid)s' class='%(Class)s %(style)s'>
+    <td>
+        <div class='testcase'>%(desc)s</div>
+    </td>
+    <td colspan='6'>
+        <div class="text-center">
+            <a class="popup_link text-center" onfocus='blur()' onclick="showTestDetail('div_%(tid)s')">%(status)s</a>
+        </div>
+        <!--css div popup start-->
+        <div id='div_%(tid)s' class="popup_window test_output">
+            <div class='close_button pull-right'>
+                <button type="button" class="close" aria-label="Close" onfocus='this.blur();'
+                        onclick="document.getElementById('div_%(tid)s').style.display='none'"><span
+                        aria-hidden="true">&times;</span></button>
+                <!--<a onfocus='this.blur();' onclick="document.getElementById('div_%(tid)s').style.display='none'">[x]</a>-->
+            </div>
+            <div class="text-left pull-left">
+                <pre class="text-left">%(script)s</pre>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <!--css div popup end-->
+    </td>
+</tr>

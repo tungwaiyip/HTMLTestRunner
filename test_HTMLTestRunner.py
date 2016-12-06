@@ -3,11 +3,10 @@
 import StringIO
 import sys
 import unittest
-
 import HTMLTestRunner
 
-# ----------------------------------------------------------------------
 
+# ----------------------------------------------------------------------
 def safe_unicode(obj, *args):
     """ return the unicode representation of obj """
     try:
@@ -17,6 +16,7 @@ def safe_unicode(obj, *args):
         ascii_text = str(obj).encode('string_escape')
         return unicode(ascii_text)
 
+
 def safe_str(obj):
     """ return the byte string representation of obj """
     try:
@@ -25,21 +25,22 @@ def safe_str(obj):
         # obj is unicode
         return unicode(obj).encode('unicode_escape')
 
+
 # ----------------------------------------------------------------------
 # Sample tests to drive the HTMLTestRunner
-
 class SampleTest0(unittest.TestCase):
     """ A class that passes.
 
     This simple class has only one test case that passes.
     """
-    def __init__(self, methodName):
-        unittest.TestCase.__init__(self, methodName)
+    def __init__(self, method_name):
+        unittest.TestCase.__init__(self, method_name)
 
     def test_pass_no_output(self):
         """        test description
         """
         pass
+
 
 class SampleTest1(unittest.TestCase):
     """ A class that fails.
@@ -50,25 +51,33 @@ class SampleTest1(unittest.TestCase):
         u""" test description (描述) """
         self.fail()
 
+
 class SampleOutputTestBase(unittest.TestCase):
     """ Base TestCase. Generates 4 test cases x different content type. """
     def test_1(self):
         print self.MESSAGE
+
     def test_2(self):
         print >>sys.stderr, self.MESSAGE
+
     def test_3(self):
         self.fail(self.MESSAGE)
+
     def test_4(self):
         raise RuntimeError(self.MESSAGE)
+
 
 class SampleTestBasic(SampleOutputTestBase):
     MESSAGE = 'basic test'
 
+
 class SampleTestHTML(SampleOutputTestBase):
     MESSAGE = 'the message is 5 symbols: <>&"\'\nplus the HTML entity string: [&copy;] on a second line'
 
+
 class SampleTestLatin1(SampleOutputTestBase):
     MESSAGE = u'the message is áéíóú'.encode('latin-1')
+
 
 class SampleTestUnicode(SampleOutputTestBase):
     u""" Unicode (統一碼) test """
@@ -87,8 +96,7 @@ class SampleTestUnicode(SampleOutputTestBase):
 
 # ------------------------------------------------------------------------
 # This is the main test on HTMLTestRunner
-
-class Test_HTMLTestRunner(unittest.TestCase):
+class TestHTMLTestRunner(unittest.TestCase):
 
     def test0(self):
         self.suite = unittest.TestSuite()
@@ -114,7 +122,7 @@ class Test_HTMLTestRunner(unittest.TestCase):
 
         # Invoke TestRunner
         buf = StringIO.StringIO()
-        #runner = unittest.TextTestRunner(buf)       #DEBUG: this is the unittest baseline
+        # runner = unittest.TextTestRunner(buf)       #0DEBUG: this is the unittest baseline
         runner = HTMLTestRunner.HTMLTestRunner(
                     stream=buf,
                     title='<Demo Test>',
@@ -124,7 +132,7 @@ class Test_HTMLTestRunner(unittest.TestCase):
 
         # Define the expected output sequence. This is imperfect but should
         # give a good sense of the well being of the test.
-        EXPECTED = u"""
+        expected = u"""
 Demo Test
 
 >SampleTest0:
@@ -219,35 +227,29 @@ Total
         print byte_output
         # HTMLTestRunner pumps UTF-8 output
         output = byte_output.decode('utf-8')
-        self._checkoutput(output,EXPECTED)
+        self._checkoutput(output, expected)
 
-
-    def _checkoutput(self,output,EXPECTED):
+    def _checkoutput(self, output, EXPECTED):
         i = 0
         for lineno, p in enumerate(EXPECTED.splitlines()):
             if not p:
                 continue
-            j = output.find(p,i)
+            j = output.find(p, i)
             if j < 0:
-                self.fail(safe_str('Pattern not found lineno %s: "%s"' % (lineno+1,p)))
+                self.fail(safe_str('Pattern not found lineno %s: "%s"' % (lineno+1, p)))
             i = j + len(p)
-
-
 
 
 ##############################################################################
 # Executing this module from the command line
 ##############################################################################
-
-import unittest
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         argv = sys.argv
     else:
-        argv=['test_HTMLTestRunner.py', 'Test_HTMLTestRunner']
-    unittest.main(argv=argv)
+        argv = ['test_HTMLTestRunner.py', 'TestHTMLTestRunner']
+    unittest.main(argv=argv, verbosity=2)
     # Testing HTMLTestRunner with HTMLTestRunner would work. But instead
     # we will use standard library's TextTestRunner to reduce the nesting
     # that may confuse people.
-    #HTMLTestRunner.main(argv=argv)
-
+    # HTMLTestRunner.main(argv=argv)
