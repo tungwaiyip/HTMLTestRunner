@@ -1,3 +1,4 @@
+# HTMLTestRunner 汉化版
 在原作者的基础上对整个测试报告进行了汉化处理
 此版本增加了如下功能
 - 测试报告完全汉化，包括错误日志的中文处理
@@ -12,9 +13,11 @@
 def setUp(self):
     self.driver = webdriver.Chrome()
 ```
+![](https://testerhome.com/uploads/photo/2017/146e64a2-f855-4892-bb67-0eba75489167.png!large)
 
 # 用例失败重试
 在实例化HTMLTestRunner 对象时最佳参数，retry，指定重试次数，重试的测试也会收集到测试报告中。
 `HTMLTestRunner(title="带截图的测试报告",description="小试牛刀",stream=open("test1.html","wb"),verbosity=2，retry=1)`
+![](https://testerhome.com/uploads/photo/2017/acd3a581-46f9-4872-ae1a-d231ed9227d4.png!large)
 
 详情请参考 test_screemshot.py
