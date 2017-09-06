@@ -50,7 +50,7 @@ class case_01(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(case_01)
-    runer = HTMLTestRunner(title="带截图的测试报告",description="小试牛刀",stream=open("sample_test_report.html","wb"),verbosity=2,retry=2)
+    runer = HTMLTestRunner(title="带截图的测试报告",description="小试牛刀",stream=open("sample_test_report.html","wb"),verbosity=2,retry=1)
     runer.run(suite)
 
 
