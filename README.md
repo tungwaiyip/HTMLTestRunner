@@ -21,6 +21,7 @@ def setUp(self):
 ```
 **效果**
 ![](https://testerhome.com/uploads/photo/2017/146e64a2-f855-4892-bb67-0eba75489167.png!large)
+
 # 用例失败重试
 在实例化HTMLTestRunner 对象时最佳参数，retry，指定重试次数，重试的测试也会收集到测试报告中。
 `HTMLTestRunner(title="带截图的测试报告",description="小试牛刀",stream=open("test1.html","wb"),verbosity=2，retry=1)`
