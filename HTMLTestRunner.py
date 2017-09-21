@@ -387,6 +387,7 @@ a.popup_link:hover {
 }
 
 .screenshots {
+    z-index: 100;
 	position:absolute;
 	left: 20%;
 	top: 20%;
