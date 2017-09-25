@@ -109,7 +109,7 @@ if PY3K:
     import io as StringIO
 else:
     import StringIO
-
+import copy
 
 # ------------------------------------------------------------------------
 # The redirectors below are used to capture output during testing. Output
@@ -654,6 +654,15 @@ class _TestResult(TestResult):
                 self.trys += 1
                 if self.trys <= self.retry:
                     print("retesting... %d" % self.trys)
+                    test=copy.copy(test)
+                    doc = test._testMethodDoc
+                    if doc.find('_retry')!=-1:
+                        doc = doc[:doc.find('_retry')]
+                    desc ="%s_retry:%d" %(doc, self.trys)
+                    if not PY3K:
+                        if isinstance(desc, str):
+                            desc = desc.decode("utf-8")
+                    test._testMethodDoc = desc
                     test(self)
                 else:
                     self.status = 0
