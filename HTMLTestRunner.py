@@ -662,6 +662,7 @@ class _TestResult(TestResult):
 
     def addSuccess(self, test):
         self.success_count += 1
+        self.status = 0
         TestResult.addSuccess(self, test)
         output = self.complete_output()
         self.result.append((0, test, output, ''))
