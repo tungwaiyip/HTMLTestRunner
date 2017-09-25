@@ -9,7 +9,6 @@
 
 #报告汉化
 ![](https://testerhome.com/uploads/photo/2017/d3adb2cd-56e6-4ea0-8dad-d0067467d3ac.png!large)
-
 # selenium 截图
 截图功能根据测试结果，当结果为fail或error时自动截图
 截图方法在_TestResult 的测试结果收集中，可以根据自己使用的框架不同自行调整，selenium 使用的是get_screenshot_as_base64 获取页面截图的base64编码，避免了图片文件存储的尴尬
