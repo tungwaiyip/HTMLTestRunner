@@ -8,7 +8,7 @@
 - 同时兼容python2.x 和3.x
 
 #报告汉化
-![](https://testerhome.com/uploads/photo/2017/8ae46bc1-6841-4d43-bc0d-53569d116871.png!large)
+![](https://testerhome.com/uploads/photo/2017/d3adb2cd-56e6-4ea0-8dad-d0067467d3ac.png!large)
 
 # selenium 截图
 截图功能根据测试结果，当结果为fail或error时自动截图
@@ -20,11 +20,9 @@ def setUp(self):
     self.driver = webdriver.Chrome()
 ```
 **效果**
-![](https://testerhome.com/uploads/photo/2017/146e64a2-f855-4892-bb67-0eba75489167.png!large)
+![](https://testerhome.com/uploads/photo/2017/db1ca9ab-2dec-476b-90f1-6b7d27689720.png!large)
 
 # 用例失败重试
 在实例化HTMLTestRunner 对象时追加参数，retry，指定重试次数，重试的测试也会收集到测试报告中。
 `HTMLTestRunner(title="带截图的测试报告",description="小试牛刀",stream=open("test1.html","wb"),verbosity=2，retry=1)`
 ![](https://testerhome.com/uploads/photo/2017/acd3a581-46f9-4872-ae1a-d231ed9227d4.png!large)
-
-Github地址：https://github.com/GoverSky/HTMLTestRunner
