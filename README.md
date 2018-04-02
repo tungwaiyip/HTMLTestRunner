@@ -1,5 +1,4 @@
 # HTMLTestRunner 汉化版
-半年前 发布了一个改版[HtmlTestRunner 汉化版](https://testerhome.com/topics/9984)，最近因为任务需要，又重新用了一下，期间发现还有不少bug，还有些部分要可以继续优化，这次又加了些东东
 
 + 20170925
     - 测试报告完全汉化，包括错误日志的中文处理
@@ -17,7 +16,7 @@
  ![](./img/1.png)
 # selenium 截图
 截图功能根据测试结果，当结果为fail或error时自动截图
-截图方法在_TestResult 的测试结果收集中，可以根据自己使用的框架不同自行调整，selenium 使用的是get_screenshot_as_base64 获取页面截图的base64编码，避免了图片文件存储的尴尬
+截图方法在_TestResult 的测试结果收集中，可以根据自己使用的框架不同自行调整，selenium 使用的是get_screenshot_as_base64 获取页面截图的base64编码，避免了图片文件的问题
 ![](./img/2.png)
 
 因此要提取用例中的driver变量获取webdriver对象，所以要实现截图功能必须定义在用例中定义webdriver 为driver
@@ -46,5 +45,5 @@ HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", str
 HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", stream=open("sample_test_report.html", "wb"), verbosity=2, retry=2, save_last_try=False)
 ```
 ![](./img/7.png)
-运行中输出效果如下
+运行中输出效果如下：
 ![](./img/8.png)
