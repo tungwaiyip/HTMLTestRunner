@@ -29,10 +29,9 @@ class case_01(unittest.TestCase):
         self.addCleanup(self.cleanup)
 
     def cleanup(self):
-        return
+        pass
 
     def test_case1(self):
-        """百度首页"""
         self.driver.get("https://www.baidu.com")
         self.add_img()
         self.driver.find_element_by_id('kw').send_keys(u'百度一下')
@@ -61,5 +60,5 @@ class case_01(unittest.TestCase):
 
 if __name__ == "__main__":
     suite = unittest.TestLoader().loadTestsFromTestCase(case_01)
-    runer = HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", stream=open("sample_test_report.html", "wb"), verbosity=2, retry=2, save_last_try=False)
+    runer = HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", stream=open("sample_test_report.html", "wb"), verbosity=2, retry=1, save_last_try=True)
     runer.run(suite)
