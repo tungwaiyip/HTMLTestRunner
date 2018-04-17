@@ -831,8 +831,8 @@ class _TestResult(TestResult):
             try:
                 driver = getattr(test, "driver")
                 test.imgs.append(driver.get_screenshot_as_base64())
-            except AttributeError:
-                test.img = ""
+            except Exception:
+                pass
         if self.verbosity > 1:
             sys.stderr.write('E  ')
             sys.stderr.write(str(test))
@@ -853,8 +853,8 @@ class _TestResult(TestResult):
             try:
                 driver = getattr(test, "driver")
                 test.imgs.append(driver.get_screenshot_as_base64())
-            except AttributeError:
-                test.img = ""
+            except Exception as e:
+                pass
         if self.verbosity > 1:
             sys.stderr.write('F  ')
             sys.stderr.write(str(test))

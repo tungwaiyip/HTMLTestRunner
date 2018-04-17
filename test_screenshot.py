@@ -7,9 +7,11 @@ from selenium import webdriver
 import unittest
 import time
 from HTMLTestRunner_cn import HTMLTestRunner
+import sys
 
 
 class case_01(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.driver = webdriver.Chrome()
@@ -20,7 +22,6 @@ class case_01(unittest.TestCase):
 
 
     def add_img(self):
-
         self.imgs.append(self.driver.get_screenshot_as_base64())
         return True
 
@@ -31,7 +32,10 @@ class case_01(unittest.TestCase):
     def cleanup(self):
         pass
 
+
     def test_case1(self):
+        """ 百度搜索"""
+        print("本次校验没过？")
         self.driver.get("https://www.baidu.com")
         self.add_img()
         self.driver.find_element_by_id('kw').send_keys(u'百度一下')
@@ -43,12 +47,14 @@ class case_01(unittest.TestCase):
     def test_case2(self):
         """搜狗首页"""
         self.driver.get("http://www.sogou.com")
+        print("本次校验没过？")
         self.assertTrue(False)
 
     def test_case3(self):
         """ QQ邮箱"""
         self.driver.get("https://mail.qq.com")
         self.imgs.append(self.driver.get_screenshot_as_base64())
+        print("没法打印？")
         self.assertIn(u"中文", u'中华')
 
     def test_case4(self):
