@@ -2,7 +2,7 @@
 # @Time    : 2017/9/6 11:26
 # @File    : aaa.py
 # @Author  : 守望@天空~
-"""HTMLTestRunner 截图版示例"""
+"""HTMLTestRunner 截图版示例 selenium 版"""
 from selenium import webdriver
 import unittest
 import time
@@ -26,6 +26,7 @@ class case_01(unittest.TestCase):
         return True
 
     def setUp(self):
+        # 在是python3.x 中，如果在这里初始化driver ，因为3.x版本 unittest 运行机制不同，会导致用力失败时截图失败
         self.imgs = []
         self.addCleanup(self.cleanup)
 
