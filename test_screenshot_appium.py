@@ -28,6 +28,7 @@ class case_01(unittest.TestCase):
 
 
     def add_img(self):
+        # 在是python3.x 中，如果在这里初始化driver ，因为3.x版本 unittest 运行机制不同，会导致用力失败时截图失败
         self.imgs.append(self.driver.get_screenshot_as_base64())
         return True
 
