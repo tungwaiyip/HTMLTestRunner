@@ -1061,7 +1061,8 @@ class HTMLTestRunner(Template_mixin):
             output=saxutils.escape(uo + ue),
         )
         if getattr(t,'imgs',[]):
-            tmp =u""
+            # 判断截图列表，如果有则追加
+            tmp = u""
             for i, img in enumerate(t.imgs):
                 if i==0:
                     tmp+=""" <img src="data:image/jpg;base64,%s" style="display: block;" class="img"/>\n""" % img
