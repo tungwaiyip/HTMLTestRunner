@@ -790,7 +790,7 @@ class _TestResult(TestResult):
                     sys.stderr.write("Retesting... ")
                     sys.stderr.write(str(test))
                     sys.stderr.write('..%d \n' % self.trys)
-                    doc = '' and test.shortDescription()
+                    doc = test._testMethodDoc or ''
                     if doc.find('_retry')!=-1:
                         doc = doc[:doc.find('_retry')]
                     desc ="%s_retry:%d" %(doc, self.trys)
@@ -1024,7 +1024,7 @@ class HTMLTestRunner(Template_mixin):
         tid = (n == 0 and 'p' or 'f') + 't%s.%s' % (cid + 1, tid + 1)
         name = t.id().split('.')[-1]
         if self.verbosity > 1:
-            doc = t.shortDescription() or ""
+            doc = t._testMethodDoc or ''
         else:
             doc = ""
 
