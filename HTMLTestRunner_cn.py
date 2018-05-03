@@ -1060,7 +1060,7 @@ class HTMLTestRunner(Template_mixin):
             id=tid,
             output=saxutils.escape(uo + ue),
         )
-        if t.imgs:
+        if getattr(t,'imgs',[]):
             tmp =u""
             for i, img in enumerate(t.imgs):
                 if i==0:
