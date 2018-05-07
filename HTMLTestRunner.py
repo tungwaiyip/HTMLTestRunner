@@ -65,10 +65,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # URL: http://tungwaiyip.info/software/HTMLTestRunner.html
 
 __author__ = "Wai Yip Tung"
-__version__ = "0.8.3"
+__version__ = "0.8.4"
 
 """
 Change History
+Version 0.8.4
+* Collect and show time cost of each test case (Weiqiang Bu).
 
 Version 0.8.3
 * Prevent crash on class or module-level exceptions (Darren Wurf).
@@ -470,7 +472,7 @@ a.popup_link:hover {
     REPORT_TEST_WITH_OUTPUT_TMPL = r"""
 <tr id='%(tid)s' class='%(Class)s'>
     <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'>
+    <td colspan='4' align='center'>
 
     <!--css div popup start-->
     <a class="popup_link" onfocus='this.blur();' href="javascript:showTestDetail('div_%(tid)s')" >
@@ -488,15 +490,17 @@ a.popup_link:hover {
     <!--css div popup end-->
 
     </td>
+    <td align='center'>%(cost)s</td>
 </tr>
 """  # variables: (tid, Class, style, desc, status)
 
     REPORT_TEST_NO_OUTPUT_TMPL = r"""
 <tr id='%(tid)s' class='%(Class)s'>
     <td class='%(style)s'><div class='testcase'>%(desc)s</div></td>
-    <td colspan='5' align='center'>%(status)s</td>
+    <td colspan='4' align='center'>%(status)s</td>
+    <td align='center'>%(cost)s</td>
 </tr>
-"""  # variables: (tid, Class, style, desc, status)
+"""  # variables: (tid, Class, style, desc, status,cost)
 
     REPORT_TEST_OUTPUT_TMPL = r"""
 %(id)s: %(output)s
@@ -528,6 +532,8 @@ class _TestResult(TestResult):
         self.failure_count = 0
         self.error_count = 0
         self.verbosity = verbosity
+        self.start_time = 0
+        self.time_cost = 0
 
         # result is a list of result in 4 tuple
         # (
@@ -547,6 +553,7 @@ class _TestResult(TestResult):
         self.stderr0 = sys.stderr
         sys.stdout = stdout_redirector
         sys.stderr = stderr_redirector
+        self.start_time = time.time()
 
     def complete_output(self):
         """
@@ -559,6 +566,7 @@ class _TestResult(TestResult):
             self.stdout0 = None
             self.stderr0 = None
         output = self.outputBuffer.getvalue()
+        # need clear buffer after each test
         self.outputBuffer.truncate(0)
         self.outputBuffer.seek(0)
         # self.outputBuffer.close()
@@ -575,7 +583,8 @@ class _TestResult(TestResult):
         self.success_count += 1
         TestResult.addSuccess(self, test)
         output = self.complete_output()
-        self.result.append((0, test, output, ''))
+        self.time_cost = '{0} s'.format(round(time.time() - self.start_time, 2))
+        self.result.append((0, test, output, '', self.time_cost))
         if self.verbosity > 1:
             sys.stderr.write('ok ')
             sys.stderr.write(str(test))
@@ -588,7 +597,8 @@ class _TestResult(TestResult):
         TestResult.addError(self, test, err)
         _, _exc_str = self.errors[-1]
         output = self.complete_output()
-        self.result.append((2, test, output, _exc_str))
+        self.time_cost = '{0} s'.format(round(time.time() - self.start_time, 2))
+        self.result.append((2, test, output, _exc_str, self.time_cost))
         if self.verbosity > 1:
             sys.stderr.write('E  ')
             sys.stderr.write(str(test))
@@ -601,7 +611,8 @@ class _TestResult(TestResult):
         TestResult.addFailure(self, test, err)
         _, _exc_str = self.failures[-1]
         output = self.complete_output()
-        self.result.append((1, test, output, _exc_str))
+        self.time_cost = '{0} s'.format(round(time.time() - self.start_time, 2))
+        self.result.append((1, test, output, _exc_str, self.time_cost))
         if self.verbosity > 1:
             sys.stderr.write('F  ')
             sys.stderr.write(str(test))
@@ -642,12 +653,12 @@ class HTMLTestRunner(Template_mixin):
         # Here at least we want to group them together by class.
         rmap = {}
         classes = []
-        for n, t, o, e in result_list:
+        for n, t, o, e, c in result_list:
             cls = t.__class__
             if not rmap.has_key(cls):
                 rmap[cls] = []
                 classes.append(cls)
-            rmap[cls].append((n, t, o, e))
+            rmap[cls].append((n, t, o, e, c))
         r = [(cls, rmap[cls]) for cls in classes]
         return r
 
@@ -713,7 +724,7 @@ class HTMLTestRunner(Template_mixin):
         for cid, (cls, cls_results) in enumerate(sortedResult):
             # subtotal for a class
             np = nf = ne = 0
-            for n, t, o, e in cls_results:
+            for n, t, o, e, c in cls_results:
                 if n == 0:
                     np += 1
                 elif n == 1:
@@ -740,8 +751,8 @@ class HTMLTestRunner(Template_mixin):
             )
             rows.append(row)
 
-            for tid, (n, t, o, e) in enumerate(cls_results):
-                self._generate_report_test(rows, cid, tid, n, t, o, e)
+            for tid, (n, t, o, e, cost) in enumerate(cls_results):
+                self._generate_report_test(rows, cid, tid, n, t, o, e, cost)
 
         report = self.REPORT_TMPL % dict(
             test_list=''.join(rows),
@@ -752,7 +763,7 @@ class HTMLTestRunner(Template_mixin):
         )
         return report
 
-    def _generate_report_test(self, rows, cid, tid, n, t, o, e):
+    def _generate_report_test(self, rows, cid, tid, n, t, o, e, cost=0):
         # e.g. 'pt1.1', 'ft1.1', etc
         has_output = bool(o or e)
         tid = (n == 0 and 'p' or 'f') + 't%s.%s' % (cid + 1, tid + 1)
@@ -789,6 +800,7 @@ class HTMLTestRunner(Template_mixin):
             desc=desc,
             script=script,
             status=self.STATUS[n],
+            cost=cost
         )
         rows.append(row)
         if not has_output:
