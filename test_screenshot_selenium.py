@@ -35,8 +35,11 @@ class case_01(unittest.TestCase):
 
 
     def test_case1(self):
-        """ 百度搜索"""
+        """ 百度搜索
+        呵呵呵呵
+        """
         print("本次校验没过？")
+        print ("超级长"*66)
         self.driver.get("https://www.baidu.com")
         self.add_img()
         self.driver.find_element_by_id('kw').send_keys(u'百度一下')

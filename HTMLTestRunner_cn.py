@@ -395,7 +395,10 @@ function hide_img(obj){
 <style type="text/css" media="screen">
 body        { font-family: verdana, arial, helvetica, sans-serif; font-size: 80%; }
 table       { font-size: 100%; }
-pre         { }
+pre  { 
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
 
 /* -- heading ---------------------------------------------------------------------- */
 h1 {
@@ -478,13 +481,11 @@ a.popup_link:hover {
     position: relative;
     left: 0px;
     top: 0px;
-    /*border: solid #627173 1px; */
     padding: 10px;
     background-color: #E6E6D6;
     font-family: "Lucida Console", "Courier New", Courier, monospace;
     text-align: left;
     font-size: 8pt;
-    width: 500px;
 }
 
 }

@@ -5,9 +5,7 @@
 """HTMLTestRunner 截图版示例 appium版"""
 from appium import webdriver
 import unittest
-import time
 from HTMLTestRunner_cn import HTMLTestRunner
-import sys
 
 
 class case_01(unittest.TestCase):
