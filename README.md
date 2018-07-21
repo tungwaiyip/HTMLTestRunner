@@ -14,9 +14,9 @@
 
 # 报告汉化
  ![](./img/1.png)
-# selenium 截图
+# selenium/appium 截图
 截图功能根据测试结果，当结果为fail或error时自动截图
-截图方法在_TestResult 的测试结果收集中，可以根据自己使用的框架不同自行调整，selenium 使用的是get_screenshot_as_base64 获取页面截图的base64编码，避免了图片文件的问题
+截图方法在_TestResult 的测试结果收集中，可以根据自己使用的框架不同自行调整，selenium 使用的是get_screenshot_as_base64 获取页面截图的base64编码，避免了图片文件的问题<br/>
 ![](./img/2.png)
 
 因此要提取用例中的driver变量获取webdriver对象，所以要实现截图功能必须定义在用例中定义webdriver 为driver
@@ -25,25 +25,28 @@ def setUp(self):
     self.imgs=[]  # （可选）初始化截图列表
     self.driver = webdriver.Chrome()
 ```
-也可以在测试过程中某一步骤自定义添加截图,比如
-![](./img/3.png)
-生成报告后会统一进行展示
-**截图播放效果**
-![](./img/4.gif)
-
+也可以在测试过程中某一步骤自定义添加截图,比如<br/>
+![](./img/3.png)<br/>
+生成报告后会统一进行展示<br/>
+**截图轮播效果**<br/>
+![](./img/4.gif)<br/>
+**手机效果截图**<br/>
+![](./img/5.gif)
 # 用例失败重试
-根据unittest的运行机制，在stopTest 中判断测试结果，如果失败或出错status为1，判断是否需要重试；
+根据unittest的运行机制，在stopTest 中判断测试结果，如果失败或出错status为1，判断是否需要重试；<br/>
 ![](./img/5.png)
 
 在实例化HTMLTestRunner 对象时追加参数，retry，指定重试次数，如果save_last_try 为True ，一个用例仅显示最后一次测试的结果。
 ```python
 HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", stream=open("sample_test_report.html", "wb"), verbosity=2, retry=2, save_last_try=True)
 ```
+
 ![](./img/6.png)
 如果save_last_try 为False，则显示所有重试的结果。
 ```python
 HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", stream=open("sample_test_report.html", "wb"), verbosity=2, retry=2, save_last_try=False)
 ```
+
 ![](./img/7.png)
-运行中输出效果如下：
+运行中输出效果如下：<br/>
 ![](./img/8.png)
