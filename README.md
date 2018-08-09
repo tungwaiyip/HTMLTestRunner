@@ -2,7 +2,7 @@
 
 + 20170925
     - 测试报告完全汉化，包括错误日志的中文处理
-    - 针对selenium UI测试增加失败自动截图功能
+    - 针对selenium UI测试增加失败自动截图功能，截图自动轮播
     - 增加失败自动重试功能
     - 增加饼图统计
     - 同时兼容python2.x 和3.x
@@ -12,7 +12,7 @@
     - 增加截图组，可展示多张截图，首次打开自动播放
     - 增加仅展示最后一次运行结果，多次重试时，每个测试用例仅展示一次
 
-# 报告汉化
+# 报告汉化，错误日志
  ![](./img/1.png)
 # selenium/appium 截图
 截图功能根据测试结果，当结果为fail或error时自动截图
@@ -28,9 +28,9 @@ def setUp(self):
 也可以在测试过程中某一步骤自定义添加截图,比如<br/>
 ![](./img/3.png)<br/>
 生成报告后会统一进行展示<br/>
-**截图轮播效果**<br/>
+**Selenium截图轮播效果**<br/>
 ![](./img/4.gif)<br/>
-**手机效果截图**<br/>
+**Appium效果截图**<br/>
 ![](./img/5.gif)
 # 用例失败重试
 根据unittest的运行机制，在stopTest 中判断测试结果，如果失败或出错status为1，判断是否需要重试；<br/>
@@ -50,3 +50,5 @@ HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", str
 ![](./img/7.png)
 运行中输出效果如下：<br/>
 ![](./img/8.png)
+
+`注意：再python3 中因为unittest运行机制变动，在使用setUp/tearDown中初始化/退出driver时，会出现用例执行失败没有截图的问题，随意推荐使用样例中setUpClass/tearDownClass的用法`

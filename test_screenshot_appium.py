@@ -39,7 +39,7 @@ class case_01(unittest.TestCase):
 
 
     def test_case1(self):
-        """ 手机QQ"""
+        """ 手机QQ截图"""
         self.add_img()
         self.add_img()
         self.add_img()

@@ -11,7 +11,14 @@ import sys
 
 
 class case_01(unittest.TestCase):
+    """
+    def setUp(cls):
+        cls.driver = webdriver.Chrome()
 
+    def tearDown(cls):
+        cls.driver.quit()
+
+        """
     @classmethod
     def setUpClass(cls):
         cls.driver = webdriver.Chrome()
@@ -19,7 +26,6 @@ class case_01(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.driver.quit()
-
 
     def add_img(self):
         self.imgs.append(self.driver.get_screenshot_as_base64())
