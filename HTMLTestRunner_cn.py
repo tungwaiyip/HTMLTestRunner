@@ -99,17 +99,19 @@ Version in 0.7.1
 # TODO: color stderr
 # TODO: simplify javascript using ,ore than 1 class in the class attribute?
 import datetime
-
 import sys
 import unittest
+import copy
+import threading
 from xml.sax import saxutils
+from functools import cmp_to_key
 
 PY3K = (sys.version_info[0] > 2)
 if PY3K:
     import io as StringIO
 else:
     import StringIO
-import copy
+
 
 # ------------------------------------------------------------------------
 # The redirectors below are used to capture output during testing. Output
@@ -136,6 +138,7 @@ class OutputRedirector(object):
 
     def flush(self):
         self.fp.flush()
+
 
 
 stdout_redirector = OutputRedirector(sys.stdout)
@@ -189,6 +192,7 @@ class Template_mixin(object):
         0: u'通过',
         1: u'失败',
         2: u'错误',
+        3:u'跳过',
     }
 
     DEFAULT_TITLE = 'Unit Test Report'
@@ -210,28 +214,63 @@ class Template_mixin(object):
 <script language="javascript" type="text/javascript">
 output_list = Array();
 
-/* level - 0:Summary; 1:Failed; 2:All */
-function showCase(level) {
+/* level - 0:Summary; 1:Passed; 2:Failed; 3:Errored; 4:Skiped; 5:All */
+function showCase(level,channel) {
     trs = document.getElementsByTagName("tr");
     for (var i = 0; i < trs.length; i++) {
         tr = trs[i];
         id = tr.id;
-        if (id.substr(0,2) == 'ft') {
-            if (level < 1) {
-                tr.className = 'hiddenRow';
-            }
-            else {
-                tr.className = '';
-            }
-        }
-        if (id.substr(0,2) == 'pt') {
-            if (level > 1) {
-                tr.className = '';
-            }
-            else {
+        if (["ft","pt","et","st"'].indexOf(id.substr(0,2))!=-1){
+           if ( level ==0 && id.substr(2,1)==channel ) {
                 tr.className = 'hiddenRow';
             }
         }
+
+        if (id.substr(0,3) == 'pt'+channel) {
+            if ( level==1){
+                tr.className = '';
+            }
+            else if  (level>3 && id.substr(2,1)==channel ){
+                tr.className = '';
+            }
+            else {
+                tr.className = 'hiddenRow';
+            }
+         }
+        if (id.substr(0,3) == 'ft'+channel) {
+            if (level ==2) {
+                tr.className = '';
+            }
+            else if  (level>3 && id.substr(2,1)==channel ){
+                tr.className = '';
+            }
+            else {
+                tr.className = 'hiddenRow';
+            }
+          }
+        if (id.substr(0,3) == 'et'+channel) {
+            if (level ==3) {
+                tr.className = '';
+            }
+            else if  (level>3 && id.substr(2,1)==channel ){
+                tr.className = '';
+            }
+            else {
+                tr.className = 'hiddenRow';
+            }
+        }
+        if (id.substr(0,3) == 'st'+channel) {
+            if (level ==3) {
+                tr.className = '';
+            }
+            else if  (level>3 && id.substr(2,1)==channel ){
+                tr.className = '';
+            }
+            else {
+                tr.className = 'hiddenRow';
+            }
+        }
+
     }
 }
 
@@ -245,6 +284,14 @@ function showClassDetail(cid, count) {
         tr = document.getElementById(tid);
         if (!tr) {
             tid = 'p' + tid0;
+            tr = document.getElementById(tid);
+        }
+        if (!tr) {
+            tid = 'e' + tid0;
+            tr = document.getElementById(tid);
+        }
+        if (!tr) {
+            tid = 's' + tid0;
             tr = document.getElementById(tid);
         }
         id_list[i] = tid;
@@ -285,12 +332,12 @@ function html_escape(s) {
     return s;
 }
 
-function drawCircle(pass, fail, error){ 
+function drawCircle(circle,pass, fail, error){ 
     var color = ["#6c6","#c60","#c00"];  
     var data = [pass,fail,error]; 
-    var text_arr = ["pass", "fail", "error"];
+    var text_arr = ["Pass", "Fail", "Error"];
 
-    var canvas = document.getElementById("circle");  
+    var canvas = document.getElementById(circle);  
     var ctx = canvas.getContext("2d");  
     var startPoint=0;
     var width = 20, height = 10;
@@ -370,12 +417,12 @@ function hide_img(obj){
     obj.parentElement.getElementsByClassName('imgyuan')[0].innerHTML = "";
 }
 </script>
+%(heading)s
 <div class="piechart">
     <div>
-        <canvas id="circle" width="350" height="168" </canvas>
+        <canvas id="circle%(channel)s" width="350" height="168" </canvas>
     </div>
 </div>
-%(heading)s
 %(report)s
 %(ending)s
 
@@ -406,6 +453,7 @@ h1 {
 	color: gray;
 }
 .heading {
+    float:left;
     margin-top: 0ex;
     margin-bottom: 1ex;
 }
@@ -435,7 +483,7 @@ a.popup_link:hover {
 
 .screenshots {
     z-index: 100;
-	position:absolute;
+	position:fixed;
 	height: 80%;
     left: 50%;
     top: 50%;
@@ -491,6 +539,8 @@ a.popup_link:hover {
 }
 /* -- report ------------------------------------------------------------------------ */
 #show_detail_line {
+    float:left;
+    width:100%;
     margin-top: 3ex;
     margin-bottom: 1ex;
 }
@@ -563,11 +613,25 @@ tr[id^=et]  td { background-color: rgba(249,62,62,.3) !important ; }
 #ending {
 }
 
-
+.detail_button {
+    width: 130px;
+    text-decoration: none;
+    line-height: 38px;
+    text-align: center;
+    font-weight: bold;
+    color: #ffff;
+    border-radius: 6px;
+    padding: 5px 10px 5px 10px;
+    position: relative;
+    overflow: hidden;
+}
+.detail_button.abstract{background-color: #4dbee8;}
+.detail_button.passed{  background-color: #66cc66;}
+.detail_button.failed{  background-color: #cc6600;}
+.detail_button.errored{ background-color: #f54f4f;}
+.detail_button.skiped{ background-color: gray;}
+.detail_button.all{ background-color: blue;}
 .piechart{  
-    position:absolute;  ;
-    top:20px;  
-    left:300px; 
     width: 200px;
     float: left;
     display:  inline;
@@ -597,11 +661,14 @@ tr[id^=et]  td { background-color: rgba(249,62,62,.3) !important ; }
     #
 
     REPORT_TMPL = """
-<p id='show_detail_line'>显示
-<a href='javascript:showCase(0)'>概要</a>
-<a href='javascript:showCase(1)'>失败</a>
-<a href='javascript:showCase(2)'>所有</a>
-</p>
+<div id='show_detail_line' style=" float: left;  width: 100%%;">
+<a class="abstract detail_button" href='javascript:showCase(0,%(channel)s)'>概要[%(Pass_p).2f%%]</a>
+<a class="passed  detail_button" href='javascript:showCase(1,%(channel)s)'>通过[%(Pass)s]</a>
+<a class="failed  detail_button" href='javascript:showCase(2,%(channel)s)'>失败[%(fail)s]</a>
+<a class="errored  detail_button" href='javascript:showCase(3,%(channel)s)'>错误[%(error)s]</a>
+<!--<a class="skiped  detail_button"  href='javascript:showCase(4,%(channel)s)'>跳过[%(skip)s]</a>-->
+<a class="all detail_button" href='javascript:showCase(5,%(channel)s)'>所有[%(total)s]</a>
+</div>
 
 <table id='result_table'>
 <colgroup>
@@ -634,8 +701,8 @@ tr[id^=et]  td { background-color: rgba(249,62,62,.3) !important ; }
 </tr>
 </table>
 <script>
-    showCase(1);
-    drawCircle(%(Pass)s, %(fail)s, %(error)s);
+    showCase(0,%(channel)s);
+    drawCircle('circle%(channel)s',%(Pass)s, %(fail)s, %(error)s);
 </script>
 """
     # variables: (test_list, count, Pass, fail, error)
@@ -692,9 +759,9 @@ tr[id^=et]  td { background-color: rgba(249,62,62,.3) !important ; }
 
 
     IMG_TMPL = r"""
-        <a href="#"  onclick="show_img(this)">显示截图</a>
+        <a  onfocus='this.blur();' href="javacript:void(0);" onclick="show_img(this)">显示截图</a>
     <div align="center" class="screenshots"  style="display:none">
-        <a class="close_shots"  href="#"   onclick="hide_img(this)"></a>
+        <a class="close_shots"  onclick="hide_img(this)"></a>
         %(imgs)s
         <div class="imgyuan"></div>
     </div>
@@ -725,18 +792,20 @@ class _TestResult(TestResult):
     # note: _TestResult is a pure representation of results.
     # It lacks the output and reporting ability compares to unittest._TextTestResult.
 
-    def __init__(self, verbosity=1, retry=0,save_last_try=True):
+    def __init__(self, verbosity=1, retry=0,save_last_try=False):
         TestResult.__init__(self)
+
         self.stdout0 = None
         self.stderr0 = None
         self.success_count = 0
         self.failure_count = 0
         self.error_count = 0
+        self.skip_count = 0
         self.verbosity = verbosity
 
         # result is a list of result in 4 tuple
         # (
-        #   result code (0: success; 1: fail; 2: error),
+        #   result code (0: success; 1: fail; 2: error;3:skip),
         #   TestCase object,
         #   Test output (byte string),
         #   stack trace,
@@ -745,13 +814,14 @@ class _TestResult(TestResult):
         self.retry = retry
         self.trys = 0
         self.status = 0
+
         self.save_last_try = save_last_try
         self.outputBuffer = StringIO.StringIO()
 
     def startTest(self, test):
-        test.imgs = []
-        # test.imgs = getattr(test, "imgs", [])
-        TestResult.startTest(self, test)
+        # test.imgs = []
+        test.imgs = getattr(test, "imgs", [])
+        # TestResult.startTest(self, test)
         self.outputBuffer.seek(0)
         self.outputBuffer.truncate()
         stdout_redirector.fp = self.outputBuffer
@@ -777,21 +847,21 @@ class _TestResult(TestResult):
         # Usually one of addSuccess, addError or addFailure would have been called.
         # But there are some path in unittest that would bypass this.
         # We must disconnect stdout in stopTest(), which is guaranteed to be called.
-        if self.retry:
+        if self.retry and self.retry>=1:
             if self.status == 1:
                 self.trys += 1
                 if self.trys <= self.retry:
                     if self.save_last_try:
                         t = self.result.pop(-1)
                         if t[0]==1:
-                            self.failure_count-=1
+                            self.failure_count -=1
                         else:
                             self.error_count -= 1
                     test=copy.copy(test)
                     sys.stderr.write("Retesting... ")
                     sys.stderr.write(str(test))
                     sys.stderr.write('..%d \n' % self.trys)
-                    doc = test._testMethodDoc or ''
+                    doc = getattr(test,'_testMethodDoc',u"") or u''
                     if doc.find('_retry')!=-1:
                         doc = doc[:doc.find('_retry')]
                     desc ="%s_retry:%d" %(doc, self.trys)
@@ -812,33 +882,11 @@ class _TestResult(TestResult):
         output = self.complete_output()
         self.result.append((0, test, output, ''))
         if self.verbosity > 1:
-            sys.stderr.write('ok ')
+            sys.stderr.write('P  ')
             sys.stderr.write(str(test))
             sys.stderr.write('\n')
         else:
-            sys.stderr.write('.')
-
-    def addError(self, test, err):
-        self.error_count += 1
-        self.status = 1
-        TestResult.addError(self, test, err)
-        _, _exc_str = self.errors[-1]
-        output = self.complete_output()
-        self.result.append((2, test, output, _exc_str))
-        if not getattr(test, "driver",""):
-            pass
-        else:
-            try:
-                driver = getattr(test, "driver")
-                test.imgs.append(driver.get_screenshot_as_base64())
-            except Exception:
-                pass
-        if self.verbosity > 1:
-            sys.stderr.write('E  ')
-            sys.stderr.write(str(test))
-            sys.stderr.write('\n')
-        else:
-            sys.stderr.write('E')
+            sys.stderr.write('P')
 
     def addFailure(self, test, err):
         self.failure_count += 1
@@ -862,13 +910,50 @@ class _TestResult(TestResult):
         else:
             sys.stderr.write('F')
 
+    def addError(self, test, err):
+        self.error_count += 1
+        self.status = 1
+        TestResult.addError(self, test, err)
+        _, _exc_str = self.errors[-1]
+        output = self.complete_output()
+        self.result.append((2, test, output, _exc_str))
+        if not getattr(test, "driver",""):
+            pass
+        else:
+            try:
+                driver = getattr(test, "driver")
+                test.imgs.append(driver.get_screenshot_as_base64())
+            except Exception:
+                pass
+        if self.verbosity > 1:
+            sys.stderr.write('E  ')
+            sys.stderr.write(str(test))
+            sys.stderr.write('\n')
+        else:
+            sys.stderr.write('E')
+
+    def addSkip(self, test, reason):
+        self.skip_count += 1
+        self.status = 0
+        TestResult.addSkip(self, test,reason)
+        output = self.complete_output()
+        self.result.append((3, test, output, reason))
+        if self.verbosity > 1:
+            sys.stderr.write('K')
+            sys.stderr.write(str(test))
+            sys.stderr.write('\n')
+        else:
+            sys.stderr.write('K')
 
 class HTMLTestRunner(Template_mixin):
-    def __init__(self, stream=sys.stdout, verbosity=1, title=None, description=None, retry=0,save_last_try=False):
+    def __init__(self, stream=sys.stdout, verbosity=1, title=None, description=None,is_thread=False, retry=0,save_last_try=True):
         self.stream = stream
         self.retry = retry
+        self.is_thread=is_thread
+        self.threads= 5
         self.save_last_try=save_last_try
         self.verbosity = verbosity
+        self.run_times=0
         if title is None:
             self.title = self.DEFAULT_TITLE
         else:
@@ -878,10 +963,9 @@ class HTMLTestRunner(Template_mixin):
         else:
             self.description = description
 
-        self.startTime = datetime.datetime.now()
-
     def run(self, test):
         "Run the given test case or test suite."
+        self.startTime = datetime.datetime.now()
         result = _TestResult(self.verbosity, self.retry, self.save_last_try)
         test(result)
         self.stopTime = datetime.datetime.now()
@@ -906,7 +990,11 @@ class HTMLTestRunner(Template_mixin):
                 rmap[cls] = []
                 classes.append(cls)
             rmap[cls].append((n, t, o, e))
+        for cls in classes:
+            rmap[cls].sort(key=cmp_to_key(lambda a,b:1 if a[1].id()>b[1].id() else ( 1 if a[1].id()==b[1].id() else -1)))
         r = [(cls, rmap[cls]) for cls in classes]
+        # name = t.id().split('.')[-1]
+        r.sort(key=cmp_to_key(lambda a, b: 1 if a[0].__name__ > b[0].__name__ else -1))
         return r
 
     def getReportAttributes(self, result):
@@ -918,13 +1006,21 @@ class HTMLTestRunner(Template_mixin):
         duration = str(self.stopTime - self.startTime)
         status = []
         if result.success_count:
-            status.append(u'<span class="tj passCase">Pass</span>%s' % result.success_count)
+            status.append(u'<span class="tj passCase">Pass</span>:%s' % result.success_count)
         if result.failure_count:
-            status.append(u'<span class="tj failCase">Failure</span>%s' % result.failure_count)
+            status.append(u'<span class="tj failCase">Failure</span>:%s' % result.failure_count)
         if result.error_count:
-            status.append(u'<span class="tj errorCase">Error</span>%s' % result.error_count)
+            status.append(u'<span class="tj errorCase">Error</span>:%s' % result.error_count)
+        if result.skip_count:
+            status.append(u'<span class="tj errorCase">Skip</span>:%s' % result.skip_count)
+        total = result.success_count+result.failure_count+result.error_count++result.skip_count
+        if total>0:
+            passed = result.success_count*1.000/total*100
+        else:
+            passed =0.0
+        status.append(u'<span class="tj">通过率</span>:%.1f%%' % passed)
         if status:
-            status = ' '.join(status)
+            status = u' '.join(status)
         else:
             status = 'none'
         return [
@@ -947,6 +1043,7 @@ class HTMLTestRunner(Template_mixin):
             heading=heading,
             report=report,
             ending=ending,
+            channel=self.run_times,
         )
         if PY3K:
             self.stream.write(output.encode())
@@ -976,14 +1073,16 @@ class HTMLTestRunner(Template_mixin):
         sortedResult = self.sortResult(result.result)
         for cid, (cls, cls_results) in enumerate(sortedResult):
             # subtotal for a class
-            np = nf = ne = 0
+            np = nf = ne = ns = 0
             for n, t, o, e in cls_results:
                 if n == 0:
                     np += 1
                 elif n == 1:
                     nf += 1
-                else:
+                elif n==2:
                     ne += 1
+                else:
+                    ns +=1
 
             # format class description
             if cls.__module__ == "__main__":
@@ -1003,29 +1102,41 @@ class HTMLTestRunner(Template_mixin):
                 Pass=np,
                 fail=nf,
                 error=ne,
-                cid='c%s' % (cid + 1),
+                cid='c%s.%s' % (self.run_times,cid + 1),
             )
             rows.append(row)
 
             for tid, (n, t, o, e) in enumerate(cls_results):
                 self._generate_report_test(rows, cid, tid, n, t, o, e)
-
+        total = result.success_count + result.failure_count + result.error_count+result.skip_count
         report = self.REPORT_TMPL % dict(
             test_list=u''.join(rows),
-            count=str(result.success_count + result.failure_count + result.error_count),
+            count=str(total),
             Pass=str(result.success_count),
+            Pass_p=result.success_count*1.00/total*100 if total else 0.0,
             fail=str(result.failure_count),
             error=str(result.error_count),
+            skip=str(result.skip_count),
+            total=str(total),
+            channel=str(self.run_times),
         )
         return report
 
     def _generate_report_test(self, rows, cid, tid, n, t, o, e):
         # e.g. 'pt1.1', 'ft1.1', etc
         has_output = bool(o or e)
-        tid = (n == 0 and 'p' or 'f') + 't%s.%s' % (cid + 1, tid + 1)
+        if n==0:
+            tmp="p"
+        elif n==1:
+            tmp="f"
+        elif n==2:
+            tmp = "e"
+        else:
+            tmp = "s"
+        tid = tmp + 't%d.%d.%d' % (self.run_times,cid + 1, tid + 1)
         name = t.id().split('.')[-1]
         if self.verbosity > 1:
-            doc = t._testMethodDoc or ''
+            doc = getattr(t,'_testMethodDoc',"") or ''
         else:
             doc = ""
 
@@ -1048,9 +1159,13 @@ class HTMLTestRunner(Template_mixin):
             # ue = unicode(e.encode('string_escape'))
             if PY3K:
                 ue = e
-            elif e.find("Error") != -1 or e.find("Exception") != -1:
+            elif e.find("Error") != -1 or e.find("Exception") <> -1:
                 es = e.decode('utf-8', 'ignore').split('\n')
-                es[-2] = es[-2].decode('unicode_escape')
+                try:
+                    if es[-2].find("\\u") <> -1 or es[-2].find('"\\u') <> -1:
+                        es[-2] = es[-2].decode('unicode_escape')
+                except Exception:
+                    pass
                 ue = u"\n".join(es)
             else:
                 ue = e.decode('utf-8', 'ignore')
