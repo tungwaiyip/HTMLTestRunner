@@ -220,7 +220,7 @@ function showCase(level,channel) {
     for (var i = 0; i < trs.length; i++) {
         tr = trs[i];
         id = tr.id;
-        if (["ft","pt","et","st"'].indexOf(id.substr(0,2))!=-1){
+        if (["ft","pt","et","st"].indexOf(id.substr(0,2))!=-1){
            if ( level ==0 && id.substr(2,1)==channel ) {
                 tr.className = 'hiddenRow';
             }
@@ -1159,10 +1159,10 @@ class HTMLTestRunner(Template_mixin):
             # ue = unicode(e.encode('string_escape'))
             if PY3K:
                 ue = e
-            elif e.find("Error") != -1 or e.find("Exception") <> -1:
+            elif e.find("Error") != -1 or e.find("Exception") != -1:
                 es = e.decode('utf-8', 'ignore').split('\n')
                 try:
-                    if es[-2].find("\\u") <> -1 or es[-2].find('"\\u') <> -1:
+                    if es[-2].find("\\u") != -1 or es[-2].find('"\\u') != -1:
                         es[-2] = es[-2].decode('unicode_escape')
                 except Exception:
                     pass
