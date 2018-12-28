@@ -604,7 +604,7 @@ a.popup_link:hover {
 .passCase   { color: #6c6; }
 .failCase   { color: #c60; font-weight: bold; }
 .errorCase  { color: #c00; font-weight: bold; }
-.errorCase  { color:#908e8e; font-weight: bold; }
+.skipCase  { color:#908e8e; font-weight: bold; }
 tr[id^=pt]  td { background-color: rgba(73,204,144,.3) !important ; }
 tr[id^=ft]  td { background-color: rgba(252,161,48,.3) !important; }
 tr[id^=et]  td { background-color: rgba(249,62,62,.3) !important ; }
