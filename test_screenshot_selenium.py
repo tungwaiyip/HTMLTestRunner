@@ -118,6 +118,7 @@ class case_02(unittest.TestCase):
         time.sleep(1)
         self.add_img()
 
+    @unittest.skip('跳过')
     def test_case2(self):
         """搜狗首页"""
         self.driver.get("http://www.sogou.com")
@@ -144,3 +145,4 @@ if __name__ == "__main__":
     suites.addTests([suite2,suite1])
     runer = HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", stream=open("sample_test_report.html", "wb"), verbosity=2, retry=2, save_last_try=True)
     runer.run(suite1)
+    runer.run(suite2)

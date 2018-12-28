@@ -230,7 +230,7 @@ function showCase(level,channel) {
             if ( level==1){
                 tr.className = '';
             }
-            else if  (level>3 && id.substr(2,1)==channel ){
+            else if  (level>4 && id.substr(2,1)==channel ){
                 tr.className = '';
             }
             else {
@@ -241,7 +241,7 @@ function showCase(level,channel) {
             if (level ==2) {
                 tr.className = '';
             }
-            else if  (level>3 && id.substr(2,1)==channel ){
+            else if  (level>4 && id.substr(2,1)==channel ){
                 tr.className = '';
             }
             else {
@@ -252,7 +252,7 @@ function showCase(level,channel) {
             if (level ==3) {
                 tr.className = '';
             }
-            else if  (level>3 && id.substr(2,1)==channel ){
+            else if  (level>4 && id.substr(2,1)==channel ){
                 tr.className = '';
             }
             else {
@@ -260,10 +260,10 @@ function showCase(level,channel) {
             }
         }
         if (id.substr(0,3) == 'st'+channel) {
-            if (level ==3) {
+            if (level ==4) {
                 tr.className = '';
             }
-            else if  (level>3 && id.substr(2,1)==channel ){
+            else if  (level>4 && id.substr(2,1)==channel ){
                 tr.className = '';
             }
             else {
@@ -454,6 +454,7 @@ h1 {
 }
 .heading {
     float:left;
+    width:30%;
     margin-top: 0ex;
     margin-bottom: 1ex;
 }
@@ -603,9 +604,11 @@ a.popup_link:hover {
 .passCase   { color: #6c6; }
 .failCase   { color: #c60; font-weight: bold; }
 .errorCase  { color: #c00; font-weight: bold; }
+.errorCase  { color:#908e8e; font-weight: bold; }
 tr[id^=pt]  td { background-color: rgba(73,204,144,.3) !important ; }
 tr[id^=ft]  td { background-color: rgba(252,161,48,.3) !important; }
 tr[id^=et]  td { background-color: rgba(249,62,62,.3) !important ; }
+tr[id^=st]  td { background-color: #6f6f6fa1 !important ; }
 .hiddenRow  { display: none; }
 .testcase   { margin-left: 2em; }
 
@@ -666,7 +669,7 @@ tr[id^=et]  td { background-color: rgba(249,62,62,.3) !important ; }
 <a class="passed  detail_button" href='javascript:showCase(1,%(channel)s)'>通过[%(Pass)s]</a>
 <a class="failed  detail_button" href='javascript:showCase(2,%(channel)s)'>失败[%(fail)s]</a>
 <a class="errored  detail_button" href='javascript:showCase(3,%(channel)s)'>错误[%(error)s]</a>
-<!--<a class="skiped  detail_button"  href='javascript:showCase(4,%(channel)s)'>跳过[%(skip)s]</a>-->
+<a class="skiped  detail_button"  href='javascript:showCase(4,%(channel)s)'>跳过[%(skip)s]</a>
 <a class="all detail_button" href='javascript:showCase(5,%(channel)s)'>所有[%(total)s]</a>
 </div>
 
@@ -969,6 +972,7 @@ class HTMLTestRunner(Template_mixin):
         result = _TestResult(self.verbosity, self.retry, self.save_last_try)
         test(result)
         self.stopTime = datetime.datetime.now()
+        self.run_times+=1
         self.generateReport(test, result)
         if PY3K:
             # for python3
@@ -1012,8 +1016,8 @@ class HTMLTestRunner(Template_mixin):
         if result.error_count:
             status.append(u'<span class="tj errorCase">Error</span>:%s' % result.error_count)
         if result.skip_count:
-            status.append(u'<span class="tj errorCase">Skip</span>:%s' % result.skip_count)
-        total = result.success_count+result.failure_count+result.error_count++result.skip_count
+            status.append(u'<span class="tj skipCase">Skip</span>:%s' % result.skip_count)
+        total = result.success_count+result.failure_count+result.error_count # +result.skip_count
         if total>0:
             passed = result.success_count*1.000/total*100
         else:
@@ -1108,7 +1112,7 @@ class HTMLTestRunner(Template_mixin):
 
             for tid, (n, t, o, e) in enumerate(cls_results):
                 self._generate_report_test(rows, cid, tid, n, t, o, e)
-        total = result.success_count + result.failure_count + result.error_count+result.skip_count
+        total = result.success_count + result.failure_count + result.error_count #+result.skip_count
         report = self.REPORT_TMPL % dict(
             test_list=u''.join(rows),
             count=str(total),
