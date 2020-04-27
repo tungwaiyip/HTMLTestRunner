@@ -762,7 +762,7 @@ tr[id^=st]  td { background-color: #6f6f6fa1 !important ; }
 
 
     IMG_TMPL = r"""
-        <a  onfocus='this.blur();' href="javacript:void(0);" onclick="show_img(this)">显示截图</a>
+        <a  onfocus='this.blur();' href="javascript:void(0);" onclick="show_img(this)">显示截图</a>
     <div align="center" class="screenshots"  style="display:none">
         <a class="close_shots"  onclick="hide_img(this)"></a>
         %(imgs)s
