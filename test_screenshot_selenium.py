@@ -28,11 +28,11 @@ class case_01(unittest.TestCase):
         cls.driver.quit()
 
     def add_img(self):
-        self.imgs.append(self.driver.get_screenshot_as_base64())
+        # self.imgs.append(self.driver.get_screenshot_as_base64())
         return True
 
     def setUp(self):
-        # 在是python3.x 中，如果在这里初始化driver ，因为3.x版本 unittest 运行机制不同，会导致用力失败时截图失败
+        # 在python3.x 中，如果在这里初始化driver ，因为3.x版本 unittest 运行机制不同，会导致用例失败后截图失败
         self.imgs = []
         self.addCleanup(self.cleanup)
 
@@ -63,7 +63,7 @@ class case_01(unittest.TestCase):
     def test_case3(self):
         """ QQ邮箱"""
         self.driver.get("https://mail.qq.com")
-        self.imgs.append(self.driver.get_screenshot_as_base64())
+        # self.imgs.append(self.driver.get_screenshot_as_base64())
         print("没法打印？")
         self.assertIn(u"中文", u'中华','小当家？')
 
@@ -93,7 +93,7 @@ class case_02(unittest.TestCase):
         cls.driver.quit()
 
     def add_img(self):
-        self.imgs.append(self.driver.get_screenshot_as_base64())
+        # self.imgs.append(self.driver.get_screenshot_as_base64())
         return True
 
     def setUp(self):
@@ -128,7 +128,7 @@ class case_02(unittest.TestCase):
     def test_case3(self):
         """ QQ邮箱"""
         self.driver.get("https://mail.qq.com")
-        self.imgs.append(self.driver.get_screenshot_as_base64())
+        # self.imgs.append(self.driver.get_screenshot_as_base64())
         print("没法打印？")
         self.assertIn(u"中文", u'中文')
 
@@ -138,11 +138,13 @@ class case_02(unittest.TestCase):
         self.add_img()
         self.assertTrue(True)
 
+
 if __name__ == "__main__":
+    from unittest import TestResult
     suite1 = unittest.TestLoader().loadTestsFromTestCase(case_01)
     suite2 = unittest.TestLoader().loadTestsFromTestCase(case_02)
     suites =  unittest.TestSuite()
-    suites.addTests([suite2,suite1])
+    suites.addTests([suite1,suite2])
+
     runer = HTMLTestRunner(title="带截图的测试报告", description="小试牛刀", stream=open("sample_test_report.html", "wb"), verbosity=2, retry=2, save_last_try=True)
-    runer.run(suite1)
-    runer.run(suite2)
+    runer.run(suites)

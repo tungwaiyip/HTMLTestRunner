@@ -332,10 +332,10 @@ function html_escape(s) {
     return s;
 }
 
-function drawCircle(circle,pass, fail, error){ 
-    var color = ["#6c6","#c60","#c00"];  
-    var data = [pass,fail,error]; 
-    var text_arr = ["Pass", "Fail", "Error"];
+function drawCircle(circle, pass, fail, error, skip){ 
+    var color = ["#6c6","#c60","#c00","#808080"];  
+    var data = [pass,fail,error,skip]; 
+    var text_arr = ["Pass", "Fail", "Error","Skip"];
 
     var canvas = document.getElementById(circle);  
     var ctx = canvas.getContext("2d");  
@@ -357,7 +357,6 @@ function drawCircle(circle,pass, fail, error){
         ctx.fillStyle = color[i];
         var percent = text_arr[i] + ":"+data[i];  
         ctx.fillText(percent, textX, textY + 20 * i);  
-
     }
 }
 
@@ -705,7 +704,7 @@ tr[id^=st]  td { background-color: #6f6f6fa1 !important ; }
 </table>
 <script>
     showCase(0,%(channel)s);
-    drawCircle('circle%(channel)s',%(Pass)s, %(fail)s, %(error)s);
+    drawCircle('circle%(channel)s',%(Pass)s, %(fail)s, %(error)s,  %(skip)s);
 </script>
 """
     # variables: (test_list, count, Pass, fail, error)
@@ -794,7 +793,7 @@ TestResult = unittest.TestResult
 class _TestResult(TestResult):
     # note: _TestResult is a pure representation of results.
     # It lacks the output and reporting ability compares to unittest._TextTestResult.
-
+    shouldStop=False
     def __init__(self, verbosity=1, retry=0,save_last_try=False):
         TestResult.__init__(self)
 
@@ -973,13 +972,14 @@ class HTMLTestRunner(Template_mixin):
         test(result)
         self.stopTime = datetime.datetime.now()
         self.run_times+=1
-        self.generateReport(test, result)
+        self.generateReport(result)
         if PY3K:
             # for python3
             # print('\nTime Elapsed: %s' % (self.stopTime - self.startTime),file=sys.stderr)
             output = '\nTime Elapsed: %s' % (self.stopTime - self.startTime)
             sys.stderr.write(output)
         else:
+            # for python2
             print >> sys.stderr, '\nTime Elapsed: %s' % (self.stopTime - self.startTime)
         return result
 
@@ -1017,7 +1017,7 @@ class HTMLTestRunner(Template_mixin):
             status.append(u'<span class="tj errorCase">Error</span>:%s' % result.error_count)
         if result.skip_count:
             status.append(u'<span class="tj skipCase">Skip</span>:%s' % result.skip_count)
-        total = result.success_count+result.failure_count+result.error_count # +result.skip_count
+        total = result.success_count+result.failure_count+result.error_count  + result.skip_count
         if total>0:
             passed = result.success_count*1.000/total*100
         else:
@@ -1033,7 +1033,7 @@ class HTMLTestRunner(Template_mixin):
             (u'状态', status),
         ]
 
-    def generateReport(self, test, result):
+    def generateReport(self, result):
         report_attrs = self.getReportAttributes(result)
         generator = 'HTMLTestRunner %s' % __version__
         stylesheet = self._generate_stylesheet()
@@ -1112,7 +1112,7 @@ class HTMLTestRunner(Template_mixin):
 
             for tid, (n, t, o, e) in enumerate(cls_results):
                 self._generate_report_test(rows, cid, tid, n, t, o, e)
-        total = result.success_count + result.failure_count + result.error_count #+result.skip_count
+        total = result.success_count + result.failure_count + result.error_count +result.skip_count
         report = self.REPORT_TMPL % dict(
             test_list=u''.join(rows),
             count=str(total),
