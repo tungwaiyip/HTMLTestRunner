@@ -5,9 +5,10 @@
     <title>Unit Test Report</title>
     <meta name="generator" content="HTMLTestRunner 0.8.2"/>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet">
 
 <style type="text/css" media="screen">
-body        { font-family: verdana, arial, helvetica, sans-serif; font-size: 80%; }
+body        { font-family: 'Caveat', cursive; font-size: 80%; }
 table       { font-size: 100%; }
 pre         { }
 
@@ -440,11 +441,16 @@ Traceback (most recent call last):
 AssertionError: failed:/history
   pattern missing: &lt;title&gt;
 --out-------------------------------------------------------------------
-HTTP/1.0 500 Internal Server Error
-Server: MindRetrieve 0.8.2
-Date: Mon, 28 Mar 2011 16:00:12 GMT
-Content-type: text/html
-
+HTTP/1.0 500 Internal Server Error
+
+Server: MindRetrieve 0.8.2
+
+Date: Mon, 28 Mar 2011 16:00:12 GMT
+
+Content-type: text/html
+
+
+
 &lt;html&gt;&lt;body&gt;&lt;h1&gt;Internal Error&lt;/h1&gt;
 &lt;pre&gt;
 Traceback (most recent call last):
@@ -832,11 +838,16 @@ Traceback (most recent call last):
 AssertionError: failed:/weblib?query=wiki&amp;sort=tag-asc
   pattern missing: Kremlin de Moscou - Wikip\xe9dia
 --out-------------------------------------------------------------------
-HTTP/1.0 200 OK
-Content-type: text/html; charset=utf-8
-Cache-control: no-cache
-Set-Cookie: weblib_sort=tag-asc
-
+HTTP/1.0 200 OK
+
+Content-type: text/html; charset=utf-8
+
+Cache-control: no-cache
+
+Set-Cookie: weblib_sort=tag-asc
+
+
+
 &lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3c.org/TR/html4/loose.dtd"&gt;
 &lt;html&gt;
 &lt;head&gt;
@@ -1699,7 +1710,8 @@ DEBUG:app:CGI script: /weblib completed duration: 0.120000000
 
 pt4.6: INFO:wlib.store:Loading weblib from: testdata/weblib\weblib.dat
 DEBUG:app:Run CGI script: /weblib path: /weblib/_?description=description%3A%E2%82%AC%21%22%23%24%25%26%27%28%29%2A%2B%2C-.+%2F0123456789%3A+%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D%7E%0D%0A%5BFor+testing%5D&amp;tags=%E2%82%AC%21%22%24%25+%26%27%28%29%2A-.%2F%3B+%3D%3F%5B%5C%5D%5E+_%60%7B%7C%7D%7E&amp;url=url%3A%E2%82%AC%21%22%23%24%25%26%27%28%29%2A%2B%2C-.+%2F0123456789%3A+%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D%7E&amp;title=%E2%82%AC%21%22%23%24%25%26%27%28%29%2A%2B%2C-.+%2F0123456789%3A+%3B%3C%3D%3E%3F%40%5B%5C%5D%5E_%60%7B%7C%7D%7E&amp;method=PUT&amp;create_tags=1
-DEBUG:cgi.weblib:method PUT rid=-1 tid=None path=/_ param (description=description:€!"#$%&amp;'()*+,-. /0123456789: ;&lt;=&gt;?@[\]^_`{|}~
+DEBUG:cgi.weblib:method PUT rid=-1 tid=None path=/_ param (description=description:€!"#$%&amp;'()*+,-. /0123456789: ;&lt;=&gt;?@[\]^_`{|}~
+
 [For testing],title=€!"#$%&amp;'()*+,-. /0123456789: ;&lt;=&gt;?@[\]^_`{|}~,url=url:€!"#$%&amp;'()*+,-. /0123456789: ;&lt;=&gt;?@[\]^_`{|}~,tags=€!"$% &amp;'()*-./; =?[\]^ _`{|}~,method=PUT,create_tags=1)
 DEBUG:weblib:Added tag: €!"$% &amp;'()*-./; =?[\]^ _`{|}~
 INFO:cgi.wlibFm:Adding WebPage: €!"#$%&amp;'()*+,-. /0123456789: ;&lt;=&gt;?@[\]^_`{|}~
@@ -4449,9 +4461,11 @@ pt31.3:
         </div>
         <pre>
 
-pt36.1: line 0: [line1
+pt36.1: line 0: [line1
+
 ]
-line 1: [line2
+line 1: [line2
+
 ]
 line 2: [line3
 ]
