@@ -740,7 +740,7 @@ class HTMLTestRunner(Template_mixin):
             if cls.__module__ == "__main__":
                 name = cls.__name__
             else:
-                name = "%s.%s" % (cls.__module__, cls.__name__)
+                name = "%s.%s.%s" % (desc, cls.__module__, cls.__name__)
             doc = cls.__doc__ and cls.__doc__.split("\n")[0] or ""
             desc = doc and '%s: %s' % (name, doc) or name
 
