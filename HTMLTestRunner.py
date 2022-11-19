@@ -575,6 +575,13 @@ class _TestResult(TestResult):
         # We must disconnect stdout in stopTest(), which is guaranteed to be called.
         self.complete_output()
 
+    def addSubTest(self, test, subtest, err):
+            if err is not None:
+                self.addFailure(subtest, err)
+            else:
+                self.addSuccess(subtest)
+            super(_TestResult, self).addSubTest(test, subtest, err)
+
 
     def addSuccess(self, test):
         self.success_count += 1
