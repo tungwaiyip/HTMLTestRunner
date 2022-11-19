@@ -767,6 +767,38 @@ class HTMLTestRunner(Template_mixin):
         )
         return report
 
+    def strip_file_path(self, e: str):
+        n = len(e)
+
+        i = 0
+        se = ''
+
+        found_dq = False
+
+        while i < n:
+            if e[i] != '"':
+                se = se + e[i]
+                i += 1
+            else:
+                se = se + e[i]
+                if not found_dq:
+                    found_dq = True
+                    j = i + 1
+                    while j < n:
+                        if e[j] != '"':
+                            j += 1
+                        else:
+                            # Backtrack to start of file name:
+                            while j > i:
+                                if e[j] != '\\':
+                                    j -= 1
+                                else:
+                                    i = j
+                                    break
+                            break
+                i += 1
+    
+        return se
 
     def _generate_report_test(self, rows, cid, tid, n, t, o, e):
         # e.g. 'pt1.1', 'ft1.1', etc
@@ -787,9 +819,9 @@ class HTMLTestRunner(Template_mixin):
         if isinstance(e,str):
             # TODO: some problem with 'string_escape': it escape \n and mess up formating
             # ue = unicode(e.encode('string_escape'))
-            ue = e
+            ue = self.strip_file_path(e)
         else:
-            ue = e
+            ue = self.strip_file_path(e)
 
         script = self.REPORT_TEST_OUTPUT_TMPL % dict(
             id = tid,
